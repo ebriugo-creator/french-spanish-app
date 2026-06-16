@@ -1,0 +1,26 @@
+{
+  "name": "Español A2 — Apprentissage",
+  "short_name": "Español A2",
+  "description": "Apprends l'espagnol pour le voyage et la vie quotidienne, du niveau A1 à A2.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#c1121f",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

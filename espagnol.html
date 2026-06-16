@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espagnol A2</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; font-size: 16px; line-height: 1.5; padding: 14px; max-width: 640px; margin: 0 auto; background: #fff; color: #111; }
+h1 { font-size: 20px; margin-bottom: 14px; }
+h2 { font-size: 16px; margin-bottom: 10px; font-weight: 600; }
+nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+nav button { padding: 7px 13px; border: 2px solid #111; background: #fff; cursor: pointer; font-size: 14px; border-radius: 4px; }
+nav button.active { background: #111; color: #fff; }
+section { display: none; }
+section.active { display: block; }
+.filter-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.filter-btns button { padding: 5px 11px; border: 1px solid #999; border-radius: 20px; background: #fff; cursor: pointer; font-size: 13px; }
+.filter-btns button.active { background: #111; color: #fff; border-color: #111; }
+.search { width: 100%; padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; margin-bottom: 10px; }
+.card { border: 1px solid #ddd; padding: 12px 14px; border-radius: 5px; margin-bottom: 10px; }
+.card .es { font-size: 20px; font-weight: bold; }
+.card .fr { color: #444; margin-top: 2px; }
+.card .ex { font-style: italic; color: #555; margin-top: 5px; font-size: 14px; }
+.card .cat { font-size: 11px; color: #aaa; float: right; }
+.exo { margin-bottom: 20px; border-left: 3px solid #ccc; padding-left: 12px; }
+.exo p { margin-bottom: 8px; }
+.exo input { border: none; border-bottom: 2px solid #111; padding: 2px 4px; font-size: 15px; min-width: 80px; font-family: sans-serif; outline: none; background: transparent; }
+.exo input.correct { border-color: green; color: green; }
+.exo input.wrong { border-color: red; color: red; }
+.exo .hint { font-size: 13px; color: #777; margin-top: 4px; display: none; }
+.exo .reponse { font-size: 13px; color: green; margin-top: 2px; display: none; }
+.exo-select { font-size: 15px; padding: 3px 6px; border: 1px solid #ccc; border-radius: 3px; background: #fff; font-family: sans-serif; }
+.exo-select.correct { border-color: green; color: green; }
+.exo-select.wrong { border-color: red; color: red; }
+.btn { display: inline-block; padding: 9px 16px; background: #111; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-top: 6px; margin-right: 6px; }
+.btn.sec { background: #fff; color: #111; border: 1px solid #111; }
+#exo-score { font-weight: bold; margin-top: 12px; font-size: 15px; }
+.exo-section-title { font-weight: bold; font-size: 14px; color: #555; margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #eee; padding-bottom: 4px; }
+#fc-card { border: 2px solid #111; border-radius: 8px; padding: 36px 20px; text-align: center; min-height: 130px; cursor: pointer; margin-bottom: 14px; user-select: none; }
+#fc-front { font-size: 26px; font-weight: bold; }
+#fc-back { font-size: 18px; color: #444; margin-top: 8px; display: none; }
+#fc-ex { font-size: 13px; font-style: italic; color: #777; margin-top: 6px; display: none; }
+#fc-nav { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+#fc-progress { text-align: center; color: #888; font-size: 13px; margin-bottom: 8px; }
+#fc-result { display: flex; gap: 8px; justify-content: center; margin-top: 10px; }
+#fc-known { background: #1a6e1a; }
+#fc-unknown { background: #9b1c1c; }
+#fc-score { font-size: 13px; color: #888; text-align: center; margin-top: 10px; }
+</style>
+</head>
+<body>
+<h1>&#127466;&#127480; Espagnol &mdash; niveau A2</h1>
+<nav>
+  <button class="active" onclick="showSection('vocab',this)">Vocabulaire</button>
+  <button onclick="showSection('exercices',this)">Exercices</button>
+  <button onclick="showSection('flashcards',this)">Flashcards</button>
+</nav>
+
+<section id="vocab" class="active">
+  <h2>Vocabulaire <span id="vocab-count" style="font-weight:normal;color:#888;font-size:13px"></span></h2>
+  <input class="search" type="search" id="vocab-search" placeholder="Rechercher un mot..." oninput="renderVocab()">
+  <div class="filter-btns" id="vocab-filters"></div>
+  <div id="vocab-list"></div>
+</section>
+
+<section id="exercices">
+  <h2>Exercices</h2>
+  <p style="font-size:13px;color:#777;margin-bottom:14px">Conjugaison, choix multiple, por/para &mdash; niveau A2.</p>
+  <div id="exo-list"></div>
+  <button class="btn" onclick="checkExos()">V&eacute;rifier tout</button>
+  <button class="btn sec" onclick="resetExos()">Recommencer</button>
+  <div id="exo-score"></div>
+</section>
+
+<section id="flashcards">
+  <h2>Flashcards</h2>
+  <div class="filter-btns" id="fc-filters"></div>
+  <div id="fc-progress"></div>
+  <div id="fc-card" onclick="flipCard()">
+    <div id="fc-front"></div>
+    <div id="fc-back"></div>
+    <div id="fc-ex"></div>
+  </div>
+  <div id="fc-nav">
+    <button class="btn sec" onclick="prevCard()">&larr; Pr&eacute;c.</button>
+    <button class="btn" onclick="flipCard()">Retourner</button>
+    <button class="btn sec" onclick="nextCard()">Suiv. &rarr;</button>
+  </div>
+  <div id="fc-result">
+    <button class="btn" id="fc-known" onclick="markCard(true)">&#10003; Je sais</button>
+    <button class="btn" id="fc-unknown" onclick="markCard(false)">&#10007; &Agrave; revoir</button>
+  </div>
+  <div id="fc-score"></div>
+</section>
+
+<script>
+const vocabulaire = [
+// Salutations (16)
+{es:"Hola",fr:"Bonjour / Salut",cat:"Salutations",ex:"¡Hola! ¿Cómo estás?"},
+{es:"Buenos días",fr:"Bonjour (matin)",cat:"Salutations",ex:"Buenos días, ¿qué tal?"},
+{es:"Buenas tardes",fr:"Bon après-midi / Bonsoir",cat:"Salutations",ex:"Buenas tardes a todos."},
+{es:"Buenas noches",fr:"Bonne nuit / Bonsoir",cat:"Salutations",ex:"Buenas noches, hasta mañana."},
+{es:"¿Qué tal?",fr:"Comment ça va ?",cat:"Salutations",ex:"¿Qué tal? — Bien, gracias."},
+{es:"Adiós",fr:"Au revoir",cat:"Salutations",ex:"Adiós, nos vemos mañana."},
+{es:"Hasta luego",fr:"À bientôt / À tout à l'heure",cat:"Salutations",ex:"Hasta luego, que te vaya bien."},
+{es:"Hasta mañana",fr:"À demain",cat:"Salutations",ex:"Hasta mañana, buenas noches."},
+{es:"Por favor",fr:"S'il vous plaît",cat:"Salutations",ex:"Un café, por favor."},
+{es:"Gracias",fr:"Merci",cat:"Salutations",ex:"Muchas gracias por tu ayuda."},
+{es:"De nada",fr:"De rien",cat:"Salutations",ex:"— Gracias. — De nada."},
+{es:"Perdón / Perdone",fr:"Pardon / Excusez-moi",cat:"Salutations",ex:"Perdone, ¿dónde está el metro?"},
+{es:"Lo siento",fr:"Je suis désolé(e)",cat:"Salutations",ex:"Lo siento, llego tarde."},
+{es:"Con permiso",fr:"Excusez-moi (pour passer)",cat:"Salutations",ex:"Con permiso, necesito pasar."},
+{es:"Encantado/a",fr:"Enchanté(e)",cat:"Salutations",ex:"Encantada de conocerte."},
+{es:"Mucho gusto",fr:"Ravi(e) de vous rencontrer",cat:"Salutations",ex:"Mucho gusto, soy Ana."},
+// Verbes (50)
+{es:"ser",fr:"être (identité/origine/profession)",cat:"Verbes",ex:"Soy francés, soy ingeniero."},
+{es:"estar",fr:"être (état temporaire/lieu)",cat:"Verbes",ex:"Estoy cansado. Está en casa."},
+{es:"tener",fr:"avoir",cat:"Verbes",ex:"Tengo veinte años."},
+{es:"haber",fr:"avoir (aux.) / il y a (hay)",cat:"Verbes",ex:"Hay mucha gente aquí."},
+{es:"querer",fr:"vouloir / aimer (qqn)",cat:"Verbes",ex:"Quiero un vaso de agua."},
+{es:"poder",fr:"pouvoir",cat:"Verbes",ex:"¿Puedes ayudarme?"},
+{es:"ir",fr:"aller",cat:"Verbes",ex:"Voy al trabajo en bici."},
+{es:"venir",fr:"venir",cat:"Verbes",ex:"¿De dónde vienes?"},
+{es:"hacer",fr:"faire",cat:"Verbes",ex:"¿Qué haces este fin de semana?"},
+{es:"decir",fr:"dire",cat:"Verbes",ex:"¿Qué quieres decir?"},
+{es:"saber",fr:"savoir",cat:"Verbes",ex:"No sé la respuesta."},
+{es:"conocer",fr:"connaître (qqn/qqch)",cat:"Verbes",ex:"¿Conoces a María?"},
+{es:"ver",fr:"voir",cat:"Verbes",ex:"No veo bien sin gafas."},
+{es:"dar",fr:"donner",cat:"Verbes",ex:"Dame tu número, por favor."},
+{es:"llevar",fr:"porter / apporter / durer",cat:"Verbes",ex:"Llevo diez minutos esperando."},
+{es:"hablar",fr:"parler",cat:"Verbes",ex:"Hablo un poco de español."},
+{es:"comer",fr:"manger",cat:"Verbes",ex:"Comemos a las dos."},
+{es:"beber",fr:"boire",cat:"Verbes",ex:"Bebo agua mineral."},
+{es:"vivir",fr:"vivre / habiter",cat:"Verbes",ex:"Vivo en Burdeos."},
+{es:"trabajar",fr:"travailler",cat:"Verbes",ex:"Trabajo en una oficina."},
+{es:"estudiar",fr:"étudier",cat:"Verbes",ex:"Estudio español dos horas al día."},
+{es:"escuchar",fr:"écouter",cat:"Verbes",ex:"Escucho música en el tren."},
+{es:"leer",fr:"lire",cat:"Verbes",ex:"Leo una novela cada semana."},
+{es:"escribir",fr:"écrire",cat:"Verbes",ex:"Escribo un correo a mi jefe."},
+{es:"llamar",fr:"appeler",cat:"Verbes",ex:"Llámame cuando llegues."},
+{es:"comprar",fr:"acheter",cat:"Verbes",ex:"Voy a comprar fruta."},
+{es:"vender",fr:"vendre",cat:"Verbes",ex:"Venden ropa barata."},
+{es:"pagar",fr:"payer",cat:"Verbes",ex:"¿Dónde se paga?"},
+{es:"costar",fr:"coûter",cat:"Verbes",ex:"¿Cuánto cuesta este libro?"},
+{es:"abrir",fr:"ouvrir",cat:"Verbes",ex:"El banco abre a las nueve."},
+{es:"cerrar",fr:"fermer",cat:"Verbes",ex:"La tienda cierra a las ocho."},
+{es:"salir",fr:"sortir / partir",cat:"Verbes",ex:"Salgo del trabajo a las seis."},
+{es:"llegar",fr:"arriver",cat:"Verbes",ex:"Llego a Madrid a las dos."},
+{es:"empezar",fr:"commencer",cat:"Verbes",ex:"La clase empieza a las diez."},
+{es:"terminar",fr:"finir / terminer",cat:"Verbes",ex:"Termino a las cinco."},
+{es:"dormir",fr:"dormir",cat:"Verbes",ex:"Duermo ocho horas."},
+{es:"levantarse",fr:"se lever",cat:"Verbes",ex:"Me levanto a las siete."},
+{es:"acostarse",fr:"se coucher",cat:"Verbes",ex:"Me acuesto tarde los viernes."},
+{es:"ducharse",fr:"se doucher",cat:"Verbes",ex:"Me ducho por la mañana."},
+{es:"gustar",fr:"plaire / aimer (une chose)",cat:"Verbes",ex:"Me gusta el café."},
+{es:"necesitar",fr:"avoir besoin de",cat:"Verbes",ex:"Necesito más tiempo."},
+{es:"pensar",fr:"penser / croire",cat:"Verbes",ex:"Pienso que tienes razón."},
+{es:"creer",fr:"croire / penser",cat:"Verbes",ex:"No creo que sea verdad."},
+{es:"esperar",fr:"attendre / espérer",cat:"Verbes",ex:"Espero el autobús."},
+{es:"buscar",fr:"chercher",cat:"Verbes",ex:"Busco un apartamento."},
+{es:"encontrar",fr:"trouver",cat:"Verbes",ex:"No encuentro las llaves."},
+{es:"poner",fr:"mettre / poser",cat:"Verbes",ex:"Pon la mesa, por favor."},
+{es:"tomar",fr:"prendre / boire",cat:"Verbes",ex:"Tomo un café cada mañana."},
+{es:"volver",fr:"revenir / rentrer",cat:"Verbes",ex:"Vuelvo a casa a las siete."},
+{es:"quedarse",fr:"rester",cat:"Verbes",ex:"Me quedo en casa hoy."},
+// Nourriture (30)
+{es:"el pan",fr:"le pain",cat:"Nourriture",ex:"Quiero pan con aceite."},
+{es:"el queso",fr:"le fromage",cat:"Nourriture",ex:"El queso manchego es muy bueno."},
+{es:"el jamón",fr:"le jambon",cat:"Nourriture",ex:"Jamón ibérico, por favor."},
+{es:"el pollo",fr:"le poulet",cat:"Nourriture",ex:"Pido pollo asado."},
+{es:"la carne",fr:"la viande",cat:"Nourriture",ex:"¿Cómo quiere la carne?"},
+{es:"el pescado",fr:"le poisson",cat:"Nourriture",ex:"El pescado fresco es delicioso."},
+{es:"el huevo",fr:"l'œuf",cat:"Nourriture",ex:"Quiero dos huevos fritos."},
+{es:"la fruta",fr:"le fruit / les fruits",cat:"Nourriture",ex:"Como fruta todos los días."},
+{es:"la verdura",fr:"les légumes",cat:"Nourriture",ex:"Hay que comer más verdura."},
+{es:"la ensalada",fr:"la salade",cat:"Nourriture",ex:"Una ensalada mixta, por favor."},
+{es:"la sopa",fr:"la soupe",cat:"Nourriture",ex:"Quiero sopa de tomate."},
+{es:"el arroz",fr:"le riz",cat:"Nourriture",ex:"La paella lleva arroz."},
+{es:"la pasta",fr:"les pâtes",cat:"Nourriture",ex:"Como pasta dos veces a la semana."},
+{es:"la patata",fr:"la pomme de terre",cat:"Nourriture",ex:"Patatas fritas, por favor."},
+{es:"el tomate",fr:"la tomate",cat:"Nourriture",ex:"El gazpacho lleva tomate."},
+{es:"la manzana",fr:"la pomme",cat:"Nourriture",ex:"Una manzana al día."},
+{es:"el plátano",fr:"la banane",cat:"Nourriture",ex:"Como un plátano de desayuno."},
+{es:"la naranja",fr:"l'orange",cat:"Nourriture",ex:"Un zumo de naranja, por favor."},
+{es:"el aceite",fr:"l'huile (d'olive)",cat:"Nourriture",ex:"El aceite de oliva es muy sano."},
+{es:"la sal",fr:"le sel",cat:"Nourriture",ex:"Este plato necesita más sal."},
+{es:"el azúcar",fr:"le sucre",cat:"Nourriture",ex:"¿Con o sin azúcar?"},
+{es:"el agua",fr:"l'eau",cat:"Nourriture",ex:"Un agua sin gas, por favor."},
+{es:"el café",fr:"le café",cat:"Nourriture",ex:"Un café con leche, por favor."},
+{es:"el té",fr:"le thé",cat:"Nourriture",ex:"¿Tienes té verde?"},
+{es:"la leche",fr:"le lait",cat:"Nourriture",ex:"Un vaso de leche fría."},
+{es:"el zumo",fr:"le jus de fruit",cat:"Nourriture",ex:"Un zumo de naranja natural."},
+{es:"la cerveza",fr:"la bière",cat:"Nourriture",ex:"Dos cervezas, por favor."},
+{es:"el vino",fr:"le vin",cat:"Nourriture",ex:"Un vino tinto de la casa."},
+{es:"el postre",fr:"le dessert",cat:"Nourriture",ex:"¿Qué hay de postre?"},
+{es:"la cuenta",fr:"l'addition",cat:"Nourriture",ex:"¿Me trae la cuenta, por favor?"},
+// Famille (20)
+{es:"la familia",fr:"la famille",cat:"Famille",ex:"Mi familia es grande."},
+{es:"el padre / papá",fr:"le père / papa",cat:"Famille",ex:"Mi padre trabaja en Madrid."},
+{es:"la madre / mamá",fr:"la mère / maman",cat:"Famille",ex:"Mi madre es profesora."},
+{es:"el hermano",fr:"le frère",cat:"Famille",ex:"Tengo un hermano mayor."},
+{es:"la hermana",fr:"la sœur",cat:"Famille",ex:"Mi hermana vive en Barcelona."},
+{es:"el hijo",fr:"le fils",cat:"Famille",ex:"Tengo un hijo de cinco años."},
+{es:"la hija",fr:"la fille",cat:"Famille",ex:"Mi hija estudia medicina."},
+{es:"el abuelo",fr:"le grand-père",cat:"Famille",ex:"Mi abuelo tiene ochenta años."},
+{es:"la abuela",fr:"la grand-mère",cat:"Famille",ex:"La abuela cocina muy bien."},
+{es:"el marido / esposo",fr:"le mari",cat:"Famille",ex:"Mi marido es ingeniero."},
+{es:"la mujer / esposa",fr:"la femme / l'épouse",cat:"Famille",ex:"Mi mujer es médica."},
+{es:"el novio",fr:"le petit ami / le fiancé",cat:"Famille",ex:"Mi novio es muy simpático."},
+{es:"la novia",fr:"la petite amie / la fiancée",cat:"Famille",ex:"La novia de Juan es francesa."},
+{es:"el amigo / la amiga",fr:"l'ami(e)",cat:"Famille",ex:"Salgo con mis amigos el sábado."},
+{es:"el vecino / la vecina",fr:"le voisin / la voisine",cat:"Famille",ex:"Mi vecina es muy amable."},
+{es:"el niño / la niña",fr:"l'enfant / le garçon / la fille",cat:"Famille",ex:"El niño tiene tres años."},
+{es:"el joven / la joven",fr:"le/la jeune",cat:"Famille",ex:"Los jóvenes escuchan mucha música."},
+{es:"el señor / la señora",fr:"monsieur / madame",cat:"Famille",ex:"Buenos días, señora García."},
+{es:"la persona",fr:"la personne",cat:"Famille",ex:"Hay muchas personas aquí."},
+{es:"el tío / la tía",fr:"l'oncle / la tante",cat:"Famille",ex:"Mi tía vive en Sevilla."},
+// Santé (20)
+{es:"la cabeza",fr:"la tête",cat:"Santé",ex:"Me duele la cabeza."},
+{es:"el ojo / los ojos",fr:"l'œil / les yeux",cat:"Santé",ex:"Tiene los ojos azules."},
+{es:"la nariz",fr:"le nez",cat:"Santé",ex:"Me pica la nariz."},
+{es:"la boca",fr:"la bouche",cat:"Santé",ex:"Abre la boca."},
+{es:"el oído / la oreja",fr:"l'oreille",cat:"Santé",ex:"Me duele el oído."},
+{es:"el cuello",fr:"le cou",cat:"Santé",ex:"Tengo dolor de cuello."},
+{es:"la espalda",fr:"le dos",cat:"Santé",ex:"Me duele la espalda."},
+{es:"el estómago",fr:"l'estomac",cat:"Santé",ex:"Tengo dolor de estómago."},
+{es:"la mano",fr:"la main",cat:"Santé",ex:"Dame la mano."},
+{es:"el pie",fr:"le pied",cat:"Santé",ex:"Me duele el pie derecho."},
+{es:"la rodilla",fr:"le genou",cat:"Santé",ex:"Me he hecho daño en la rodilla."},
+{es:"el médico",fr:"le médecin",cat:"Santé",ex:"Necesito ver a un médico."},
+{es:"el hospital",fr:"l'hôpital",cat:"Santé",ex:"¿Dónde está el hospital más cercano?"},
+{es:"la farmacia",fr:"la pharmacie",cat:"Santé",ex:"Necesito ir a la farmacia."},
+{es:"el medicamento",fr:"le médicament",cat:"Santé",ex:"¿Tiene este medicamento sin receta?"},
+{es:"la fiebre",fr:"la fièvre",cat:"Santé",ex:"Tengo fiebre, treinta y ocho grados."},
+{es:"el resfriado",fr:"le rhume",cat:"Santé",ex:"Estoy con un resfriado."},
+{es:"el dolor",fr:"la douleur",cat:"Santé",ex:"Tengo dolor de cabeza."},
+{es:"estar enfermo/a",fr:"être malade",cat:"Santé",ex:"Estoy enfermo y no voy al trabajo."},
+{es:"cansado/a",fr:"fatigué(e)",cat:"Santé",ex:"Estoy muy cansado esta semana."},
+// Maison (20)
+{es:"la casa",fr:"la maison",cat:"Maison",ex:"Mi casa tiene un jardín."},
+{es:"el piso / el apartamento",fr:"l'appartement",cat:"Maison",ex:"Vivo en un piso en el centro."},
+{es:"la habitación",fr:"la chambre / la pièce",cat:"Maison",ex:"Mi habitación da al jardín."},
+{es:"el salón",fr:"le salon",cat:"Maison",ex:"El salón es muy luminoso."},
+{es:"la cocina",fr:"la cuisine",cat:"Maison",ex:"La cocina es pequeña pero práctica."},
+{es:"el baño",fr:"la salle de bain / toilettes",cat:"Maison",ex:"¿Dónde está el baño?"},
+{es:"la cama",fr:"le lit",cat:"Maison",ex:"La cama es muy cómoda."},
+{es:"la mesa",fr:"la table",cat:"Maison",ex:"Pon los platos en la mesa."},
+{es:"la silla",fr:"la chaise",cat:"Maison",ex:"Siéntate en esta silla."},
+{es:"la ventana",fr:"la fenêtre",cat:"Maison",ex:"Abre la ventana, hace calor."},
+{es:"la puerta",fr:"la porte",cat:"Maison",ex:"Cierra la puerta, por favor."},
+{es:"la llave",fr:"la clé",cat:"Maison",ex:"No encuentro mis llaves."},
+{es:"el alquiler",fr:"le loyer / la location",cat:"Maison",ex:"El alquiler es caro en Madrid."},
+{es:"el ascensor",fr:"l'ascenseur",cat:"Maison",ex:"El edificio no tiene ascensor."},
+{es:"la escalera",fr:"l'escalier",cat:"Maison",ex:"Subo por la escalera."},
+{es:"el jardín",fr:"le jardin",cat:"Maison",ex:"Tenemos un jardín pequeño."},
+{es:"el garaje",fr:"le garage",cat:"Maison",ex:"El coche está en el garaje."},
+{es:"el frigorífico",fr:"le réfrigérateur",cat:"Maison",ex:"Pon la leche en el frigorífico."},
+{es:"la lavadora",fr:"le lave-linge",cat:"Maison",ex:"Tengo que poner la lavadora."},
+{es:"limpio/a",fr:"propre / net",cat:"Maison",ex:"La cocina está muy limpia."},
+// Transports (20)
+{es:"el coche",fr:"la voiture",cat:"Transports",ex:"Voy al trabajo en coche."},
+{es:"el autobús",fr:"le bus",cat:"Transports",ex:"El autobús llega en diez minutos."},
+{es:"el metro",fr:"le métro",cat:"Transports",ex:"¿Esta línea va al centro?"},
+{es:"el tren",fr:"le train",cat:"Transports",ex:"El tren sale a las ocho."},
+{es:"el avión",fr:"l'avion",cat:"Transports",ex:"El avión llega con retraso."},
+{es:"la bicicleta / la bici",fr:"le vélo",cat:"Transports",ex:"Voy al trabajo en bici."},
+{es:"a pie",fr:"à pied",cat:"Transports",ex:"Vivo cerca, voy a pie."},
+{es:"la estación",fr:"la gare / la station",cat:"Transports",ex:"¿Dónde está la estación de tren?"},
+{es:"el aeropuerto",fr:"l'aéroport",cat:"Transports",ex:"El aeropuerto está lejos del centro."},
+{es:"la parada",fr:"l'arrêt de bus",cat:"Transports",ex:"La parada está a cien metros."},
+{es:"el billete",fr:"le billet / le ticket",cat:"Transports",ex:"Dos billetes de ida y vuelta."},
+{es:"de ida y vuelta",fr:"aller-retour",cat:"Transports",ex:"Un billete de ida y vuelta, por favor."},
+{es:"el retraso",fr:"le retard",cat:"Transports",ex:"El tren lleva veinte minutos de retraso."},
+{es:"la calle",fr:"la rue",cat:"Transports",ex:"Vive en la calle Mayor."},
+{es:"la plaza",fr:"la place (publique)",cat:"Transports",ex:"Quedamos en la plaza mayor."},
+{es:"el semáforo",fr:"le feu (de circulation)",cat:"Transports",ex:"Gira a la derecha en el semáforo."},
+{es:"girar / doblar",fr:"tourner",cat:"Transports",ex:"Gira a la izquierda."},
+{es:"todo recto",fr:"tout droit",cat:"Transports",ex:"Sigue todo recto hasta el banco."},
+{es:"cerca / lejos",fr:"près / loin",cat:"Transports",ex:"¿Está lejos de aquí?"},
+{es:"el mapa",fr:"la carte / le plan",cat:"Transports",ex:"¿Tienes un mapa de la ciudad?"},
+// Temps & météo (20)
+{es:"hoy",fr:"aujourd'hui",cat:"Temps",ex:"Hoy hace mucho calor."},
+{es:"mañana",fr:"demain / le matin",cat:"Temps",ex:"Mañana tengo examen."},
+{es:"ayer",fr:"hier",cat:"Temps",ex:"Ayer fui al cine."},
+{es:"la semana",fr:"la semaine",cat:"Temps",ex:"La semana que viene voy a Madrid."},
+{es:"el mes",fr:"le mois",cat:"Temps",ex:"El mes de agosto es muy caluroso."},
+{es:"el año",fr:"l'année / l'an",cat:"Temps",ex:"Este año aprendo español."},
+{es:"ahora",fr:"maintenant",cat:"Temps",ex:"¿Qué hora es ahora?"},
+{es:"pronto",fr:"bientôt / tôt",cat:"Temps",ex:"Vuelvo pronto."},
+{es:"tarde",fr:"tard / en retard",cat:"Temps",ex:"Llego tarde, lo siento."},
+{es:"a veces",fr:"parfois",cat:"Temps",ex:"A veces como fuera."},
+{es:"siempre",fr:"toujours",cat:"Temps",ex:"Siempre desayuno a las ocho."},
+{es:"nunca",fr:"jamais",cat:"Temps",ex:"Nunca como sin sal."},
+{es:"el sol",fr:"le soleil",cat:"Temps",ex:"Hace mucho sol hoy."},
+{es:"la lluvia",fr:"la pluie",cat:"Temps",ex:"Hay lluvia toda la semana."},
+{es:"el viento",fr:"le vent",cat:"Temps",ex:"Hace mucho viento."},
+{es:"la nieve",fr:"la neige",cat:"Temps",ex:"En enero nieva mucho en la sierra."},
+{es:"hace calor",fr:"il fait chaud",cat:"Temps",ex:"Hace mucho calor en verano."},
+{es:"hace frío",fr:"il fait froid",cat:"Temps",ex:"Hace frío por las mañanas."},
+{es:"nublado",fr:"nuageux",cat:"Temps",ex:"Hoy está muy nublado."},
+{es:"el pronóstico",fr:"les prévisions météo",cat:"Temps",ex:"¿Cuál es el pronóstico para mañana?"},
+// Travail & études (20)
+{es:"el trabajo",fr:"le travail / l'emploi",cat:"Travail",ex:"Busco un trabajo en Madrid."},
+{es:"la empresa",fr:"l'entreprise",cat:"Travail",ex:"Trabajo en una empresa pequeña."},
+{es:"la oficina",fr:"le bureau",cat:"Travail",ex:"Mi oficina está en el centro."},
+{es:"el jefe / la jefa",fr:"le chef / la patronne",cat:"Travail",ex:"Mi jefa es muy exigente."},
+{es:"el compañero",fr:"le collègue",cat:"Travail",ex:"Mis compañeros son muy simpáticos."},
+{es:"la reunión",fr:"la réunion",cat:"Travail",ex:"Tengo una reunión a las diez."},
+{es:"el horario",fr:"l'horaire",cat:"Travail",ex:"Mi horario es de nueve a cinco."},
+{es:"el sueldo",fr:"le salaire",cat:"Travail",ex:"Necesito un sueldo mejor."},
+{es:"las vacaciones",fr:"les vacances",cat:"Travail",ex:"Tengo dos semanas de vacaciones."},
+{es:"el colegio",fr:"l'école primaire",cat:"Travail",ex:"El niño va al colegio."},
+{es:"el instituto",fr:"le lycée / collège",cat:"Travail",ex:"Estudio en un instituto público."},
+{es:"la universidad",fr:"l'université",cat:"Travail",ex:"Estudio en la universidad."},
+{es:"la clase",fr:"le cours / la classe",cat:"Travail",ex:"La clase empieza a las diez."},
+{es:"el examen",fr:"l'examen",cat:"Travail",ex:"Tengo un examen el viernes."},
+{es:"los deberes",fr:"les devoirs",cat:"Travail",ex:"Tengo muchos deberes esta noche."},
+{es:"aprender",fr:"apprendre",cat:"Travail",ex:"Aprendo español cada día."},
+{es:"el idioma / la lengua",fr:"la langue",cat:"Travail",ex:"Hablo tres idiomas."},
+{es:"el ordenador",fr:"l'ordinateur",cat:"Travail",ex:"Trabajo todo el día con el ordenador."},
+{es:"el correo electrónico",fr:"le courriel / l'e-mail",cat:"Travail",ex:"Te mando un correo esta tarde."},
+{es:"la contraseña",fr:"le mot de passe",cat:"Travail",ex:"He olvidado mi contraseña."},
+// Loisirs (20)
+{es:"el cine",fr:"le cinéma",cat:"Loisirs",ex:"¿Vamos al cine esta noche?"},
+{es:"la película",fr:"le film",cat:"Loisirs",ex:"He visto una película muy buena."},
+{es:"la música",fr:"la musique",cat:"Loisirs",ex:"Me gusta la música española."},
+{es:"el libro",fr:"le livre",cat:"Loisirs",ex:"Leo un libro cada mes."},
+{es:"el deporte",fr:"le sport",cat:"Loisirs",ex:"Hago deporte tres veces a la semana."},
+{es:"el fútbol",fr:"le football",cat:"Loisirs",ex:"El sábado hay partido de fútbol."},
+{es:"la natación",fr:"la natation",cat:"Loisirs",ex:"Voy a natación los martes."},
+{es:"el parque",fr:"le parc",cat:"Loisirs",ex:"Paseo por el parque por las mañanas."},
+{es:"la playa",fr:"la plage",cat:"Loisirs",ex:"En verano voy a la playa."},
+{es:"la montaña",fr:"la montagne",cat:"Loisirs",ex:"Me gusta ir a la montaña."},
+{es:"el viaje",fr:"le voyage",cat:"Loisirs",ex:"Hago un viaje a España en agosto."},
+{es:"el hotel",fr:"l'hôtel",cat:"Loisirs",ex:"He reservado un hotel en el centro."},
+{es:"el restaurante",fr:"le restaurant",cat:"Loisirs",ex:"¿Vamos a ese restaurante italiano?"},
+{es:"la fiesta",fr:"la fête / la soirée",cat:"Loisirs",ex:"Hay una fiesta el sábado."},
+{es:"el regalo",fr:"le cadeau",cat:"Loisirs",ex:"Le compro un regalo a mi madre."},
+{es:"la tienda",fr:"le magasin",cat:"Loisirs",ex:"Las tiendas cierran a las nueve."},
+{es:"el mercado",fr:"le marché",cat:"Loisirs",ex:"Los domingos hay mercado."},
+{es:"la exposición",fr:"l'exposition",cat:"Loisirs",ex:"Voy a ver una exposición el domingo."},
+{es:"el concierto",fr:"le concert",cat:"Loisirs",ex:"Tengo entradas para un concierto."},
+{es:"la entrada",fr:"le billet (spectacle)",cat:"Loisirs",ex:"¿Quedan entradas para esta noche?"},
+// Adjectifs (25)
+{es:"bueno/a",fr:"bon(ne)",cat:"Adjectifs",ex:"Es un buen restaurante."},
+{es:"malo/a",fr:"mauvais(e)",cat:"Adjectifs",ex:"Hoy tengo un mal día."},
+{es:"grande",fr:"grand(e)",cat:"Adjectifs",ex:"Es una ciudad muy grande."},
+{es:"pequeño/a",fr:"petit(e)",cat:"Adjectifs",ex:"Vivo en un piso pequeño."},
+{es:"nuevo/a",fr:"nouveau/nouvelle",cat:"Adjectifs",ex:"Tengo un trabajo nuevo."},
+{es:"viejo/a",fr:"vieux/vieille / ancien(ne)",cat:"Adjectifs",ex:"Este edificio es muy viejo."},
+{es:"bonito/a",fr:"beau/belle / joli(e)",cat:"Adjectifs",ex:"¡Qué ciudad más bonita!"},
+{es:"feo/a",fr:"laid(e) / moche",cat:"Adjectifs",ex:"Ese edificio es bastante feo."},
+{es:"caro/a",fr:"cher/chère",cat:"Adjectifs",ex:"Este hotel es muy caro."},
+{es:"barato/a",fr:"bon marché / pas cher",cat:"Adjectifs",ex:"El mercado es bastante barato."},
+{es:"fácil",fr:"facile",cat:"Adjectifs",ex:"Este ejercicio es muy fácil."},
+{es:"difícil",fr:"difficile",cat:"Adjectifs",ex:"El examen es bastante difícil."},
+{es:"simpático/a",fr:"sympathique",cat:"Adjectifs",ex:"Mi vecino es muy simpático."},
+{es:"amable",fr:"aimable / gentil(le)",cat:"Adjectifs",ex:"El dependiente fue muy amable."},
+{es:"tranquilo/a",fr:"calme / tranquille",cat:"Adjectifs",ex:"Este barrio es muy tranquilo."},
+{es:"ruidoso/a",fr:"bruyant(e)",cat:"Adjectifs",ex:"El centro es bastante ruidoso."},
+{es:"interesante",fr:"intéressant(e)",cat:"Adjectifs",ex:"Es un libro muy interesante."},
+{es:"aburrido/a",fr:"ennuyeux/euse",cat:"Adjectifs",ex:"La película fue muy aburrida."},
+{es:"contento/a",fr:"content(e) / heureux/euse",cat:"Adjectifs",ex:"Estoy muy contento con mi trabajo."},
+{es:"triste",fr:"triste",cat:"Adjectifs",ex:"Estoy un poco triste hoy."},
+{es:"rápido/a",fr:"rapide",cat:"Adjectifs",ex:"El AVE es muy rápido."},
+{es:"lento/a",fr:"lent(e)",cat:"Adjectifs",ex:"El autobús es más lento."},
+{es:"lleno/a",fr:"plein(e)",cat:"Adjectifs",ex:"El restaurante está lleno."},
+{es:"vacío/a",fr:"vide",cat:"Adjectifs",ex:"La sala estaba vacía."},
+{es:"mismo/a",fr:"même",cat:"Adjectifs",ex:"Vivo en el mismo barrio."},
+// Questions & mots-outils (19)
+{es:"¿Qué?",fr:"Quoi ? / Que ?",cat:"Questions",ex:"¿Qué quieres comer?"},
+{es:"¿Quién?",fr:"Qui ?",cat:"Questions",ex:"¿Quién es esa persona?"},
+{es:"¿Dónde?",fr:"Où ?",cat:"Questions",ex:"¿Dónde está el baño?"},
+{es:"¿Cuándo?",fr:"Quand ?",cat:"Questions",ex:"¿Cuándo sale el tren?"},
+{es:"¿Cómo?",fr:"Comment ?",cat:"Questions",ex:"¿Cómo te llamas?"},
+{es:"¿Cuánto/a?",fr:"Combien ?",cat:"Questions",ex:"¿Cuánto cuesta?"},
+{es:"¿Cuántos/as?",fr:"Combien de ? (pluriel)",cat:"Questions",ex:"¿Cuántos años tienes?"},
+{es:"¿Por qué?",fr:"Pourquoi ?",cat:"Questions",ex:"¿Por qué no vienes?"},
+{es:"¿Para qué?",fr:"Pour quoi faire ?",cat:"Questions",ex:"¿Para qué necesitas eso?"},
+{es:"¿Cuál?",fr:"Lequel ? / Quel ?",cat:"Questions",ex:"¿Cuál prefieres?"},
+{es:"también",fr:"aussi",cat:"Questions",ex:"Yo también quiero café."},
+{es:"tampoco",fr:"non plus",cat:"Questions",ex:"Yo tampoco lo sé."},
+{es:"ya",fr:"déjà / maintenant / ça y est",cat:"Questions",ex:"¿Ya has comido?"},
+{es:"todavía / aún",fr:"encore / pas encore",cat:"Questions",ex:"Todavía no he terminado."},
+{es:"más",fr:"plus / davantage",cat:"Questions",ex:"Quiero más agua, por favor."},
+{es:"menos",fr:"moins",cat:"Questions",ex:"Menos ruido, por favor."},
+{es:"muy",fr:"très",cat:"Questions",ex:"Está muy bueno."},
+{es:"mucho/a",fr:"beaucoup (de)",cat:"Questions",ex:"Hay mucha gente."},
+{es:"poco/a",fr:"peu (de)",cat:"Questions",ex:"Hablo un poco de inglés."},
+];
+
+const exercices = [
+// Présent indicatif
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Yo ___ (ser) francés y vivo en Burdeos.",rep:"soy",ind:"ser, 1re pers. sing."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Ella ___ (estar) cansada después del trabajo.",rep:"está",ind:"estar, 3e pers. sing."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Nosotros ___ (ir) al mercado los domingos.",rep:"vamos",ind:"ir, 1re pers. plur."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"¿___ (tener, tú) hermanos?",rep:"Tienes",ind:"tener, 2e pers. sing."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Ellos ___ (querer) reservar una mesa.",rep:"quieren",ind:"querer (e→ie), 3e pers. plur."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Vosotros ___ (hablar) español muy bien.",rep:"habláis",ind:"hablar, 2e pers. plur."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Yo ___ (hacer) deporte tres veces a la semana.",rep:"hago",ind:"hacer, 1re pers. sing. (irrég.)"},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"¿A qué hora ___ (salir, tú) del trabajo?",rep:"sales",ind:"salir, 2e pers. sing."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"El tren ___ (llegar) con diez minutos de retraso.",rep:"llega",ind:"llegar, 3e pers. sing."},
+{sec:"Présent de l'indicatif",type:"trou",phrase:"Yo no ___ (conocer) esta ciudad.",rep:"conozco",ind:"conocer, 1re pers. sing. (irrég.)"},
+// Ser vs Estar
+{sec:"Ser vs Estar",type:"select",phrase:"El café ___ frío.",rep:"está",opts:["es","está"],ind:"état temporaire → estar"},
+{sec:"Ser vs Estar",type:"select",phrase:"Mi madre ___ profesora.",rep:"es",opts:["es","está"],ind:"profession permanente → ser"},
+{sec:"Ser vs Estar",type:"select",phrase:"El restaurante ___ en la calle Mayor.",rep:"está",opts:["es","está"],ind:"lieu → estar"},
+{sec:"Ser vs Estar",type:"select",phrase:"Esta película ___ muy interesante.",rep:"es",opts:["es","está"],ind:"caractéristique permanente → ser"},
+{sec:"Ser vs Estar",type:"select",phrase:"Hoy ___ lunes y tengo reunión.",rep:"es",opts:["es","está"],ind:"jour de la semaine → ser"},
+// Passé composé
+{sec:"Passé composé (pretérito perfecto)",type:"trou",phrase:"Esta mañana yo ___ (tomar) un café con leche.",rep:"he tomado",ind:"he + participe en -ado"},
+{sec:"Passé composé (pretérito perfecto)",type:"trou",phrase:"¿___ (vosotros, ver) esa película ya?",rep:"Habéis visto",ind:"habéis + visto (irrég.)"},
+{sec:"Passé composé (pretérito perfecto)",type:"trou",phrase:"Ella no ___ (llegar) todavía.",rep:"ha llegado",ind:"ha + participe en -ado"},
+{sec:"Passé composé (pretérito perfecto)",type:"trou",phrase:"Hoy nosotros ___ (hacer) mucho ejercicio.",rep:"hemos hecho",ind:"hemos + hecho (irrég.)"},
+{sec:"Passé composé (pretérito perfecto)",type:"trou",phrase:"¿Ya ___ (tú, comer)?",rep:"has comido",ind:"has + participe en -ido"},
+// Prétérit
+{sec:"Prétérit (pretérito indefinido)",type:"trou",phrase:"Ayer yo ___ (ir) al médico.",rep:"fui",ind:"ir au prétérit, irrég., 1re pers. sing."},
+{sec:"Prétérit (pretérito indefinido)",type:"trou",phrase:"El año pasado ella ___ (vivir) en México.",rep:"vivió",ind:"-ir, 3e pers. sing. → -ió"},
+{sec:"Prétérit (pretérito indefinido)",type:"trou",phrase:"Nosotros ___ (comer) en un restaurante el sábado.",rep:"comimos",ind:"-er, 1re pers. plur. → -imos"},
+{sec:"Prétérit (pretérito indefinido)",type:"trou",phrase:"¿Dónde ___ (tú, estar) ayer por la tarde?",rep:"estuviste",ind:"estar au prétérit, irrég."},
+{sec:"Prétérit (pretérito indefinido)",type:"trou",phrase:"Ellos ___ (llegar) tarde a la reunión.",rep:"llegaron",ind:"-ar, 3e pers. plur. → -aron"},
+// Futur proche
+{sec:"Futur proche (ir + a + infinitif)",type:"trou",phrase:"Esta noche yo ___ (ir a ver) una película.",rep:"voy a ver",ind:"voy + a + infinitif"},
+{sec:"Futur proche (ir + a + infinitif)",type:"trou",phrase:"El próximo verano ellos ___ (ir a viajar) a España.",rep:"van a viajar",ind:"van + a + infinitif"},
+{sec:"Futur proche (ir + a + infinitif)",type:"select",phrase:"Mañana ___ mucho calor, ¿llevas agua?",rep:"va a hacer",opts:["va a hacer","hace","hizo"],ind:"futur proche → va a + infinitif"},
+// Vocabulaire
+{sec:"Vocabulaire en contexte",type:"select",phrase:"En el restaurante, al final de la comida, pido ___.",rep:"la cuenta",opts:["la llave","la cuenta","el billete"],ind:"ce qu'on demande pour payer"},
+{sec:"Vocabulaire en contexte",type:"select",phrase:"Para ir del aeropuerto al centro, puedo coger ___ o el metro.",rep:"el autobús",opts:["el avión","el autobús","la bicicleta"],ind:"transport en commun terrestre"},
+{sec:"Vocabulaire en contexte",type:"trou",phrase:"Tengo ___ de cabeza, necesito una aspirina.",rep:"dolor",ind:"tener dolor de + partie du corps"},
+{sec:"Vocabulaire en contexte",type:"trou",phrase:"Me ___ mucho el chocolate, lo como todos los días.",rep:"gusta",ind:"gustar, 3e pers. sing. (le chocolat = sujet)"},
+{sec:"Vocabulaire en contexte",type:"trou",phrase:"¿A qué hora ___ (cerrar) el banco? Necesito ir antes de las tres.",rep:"cierra",ind:"cerrar (e→ie), 3e pers. sing."},
+// Pronoms
+{sec:"Pronoms compléments",type:"select",phrase:"¿Has visto a Juan? — Sí, ___ he visto esta mañana.",rep:"lo",opts:["lo","le","la"],ind:"COD masc. sing. → lo"},
+{sec:"Pronoms compléments",type:"select",phrase:"Llamo a mis padres todos los domingos. ___ llamo por teléfono.",rep:"Los",opts:["Los","Les","Las"],ind:"COD masc. plur. → los"},
+{sec:"Pronoms compléments",type:"select",phrase:"¿___ das el libro a María? — Sí, se lo doy.",rep:"Le",opts:["Lo","Le","La"],ind:"COI fém. sing. → le"},
+// Por vs Para
+{sec:"Por vs Para",type:"select",phrase:"Estudio español ___ trabajar en España.",rep:"para",opts:["por","para"],ind:"but / objectif → para"},
+{sec:"Por vs Para",type:"select",phrase:"Gracias ___ tu ayuda.",rep:"por",opts:["por","para"],ind:"motif / cause → por"},
+{sec:"Por vs Para",type:"select",phrase:"Este regalo es ___ ti.",rep:"para",opts:["por","para"],ind:"destinataire → para"},
+];
+
+// === NAV ===
+function showSection(id, btn) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  btn.classList.add("active");
+  if (id === "flashcards") initFlashcards();
+}
+
+// === VOCABULAIRE ===
+let activeVocabCat = "Tout";
+const cats = ["Tout", ...new Set(vocabulaire.map(v => v.cat))];
+
+function renderVocabFilters() {
+  document.getElementById("vocab-filters").innerHTML = cats.map(c =>
+    `<button class="${c === activeVocabCat ? "active" : ""}" onclick="setVocabCat('${c}')">${c}</button>`
+  ).join("");
+}
+function setVocabCat(cat) { activeVocabCat = cat; renderVocabFilters(); renderVocab(); }
+function renderVocab() {
+  const q = document.getElementById("vocab-search").value.toLowerCase();
+  const list = vocabulaire.filter(v =>
+    (activeVocabCat === "Tout" || v.cat === activeVocabCat) &&
+    (v.es.toLowerCase().includes(q) || v.fr.toLowerCase().includes(q))
+  );
+  document.getElementById("vocab-count").textContent = `(${list.length} / ${vocabulaire.length})`;
+  document.getElementById("vocab-list").innerHTML = list.map(v =>
+    `<div class="card"><span class="cat">${v.cat}</span><div class="es">${v.es}</div><div class="fr">${v.fr}</div><div class="ex">&#8594; ${v.ex}</div></div>`
+  ).join("") || "<p style='color:#999'>Aucun résultat.</p>";
+}
+renderVocabFilters(); renderVocab();
+
+// === EXERCICES ===
+function renderExos() {
+  let lastSec = "";
+  document.getElementById("exo-list").innerHTML = exercices.map((e, i) => {
+    let h = "";
+    if (e.sec !== lastSec) { h = `<div class="exo-section-title">${e.sec}</div>`; lastSec = e.sec; }
+    const inp = e.type === "trou"
+      ? `<input id="inp${i}" autocomplete="off" autocapitalize="none" spellcheck="false" size="${Math.max((e.rep||"").length + 2, 8)}">`
+      : `<select class="exo-select" id="inp${i}"><option value="">—</option>${e.opts.map(o => `<option value="${o}">${o}</option>`).join("")}</select>`;
+    return `${h}<div class="exo"><p>${e.phrase.replace("___", inp)}</p><div class="hint" id="hint${i}">&#128161; ${e.ind}</div><div class="reponse" id="rep${i}">&#10003; ${e.rep}</div></div>`;
+  }).join("");
+  document.getElementById("exo-score").textContent = "";
+}
+function normalise(s) {
+  return (s||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z ]/g,"").replace(/\s+/g," ").trim();
+}
+function checkExos() {
+  let ok = 0;
+  exercices.forEach((e, i) => {
+    const inp = document.getElementById("inp" + i);
+    const val = inp.tagName === "SELECT" ? (inp.options[inp.selectedIndex]||{}).value||"" : inp.value;
+    const correct = normalise(val) === normalise(e.rep);
+    inp.classList.toggle("correct", correct);
+    inp.classList.toggle("wrong", !correct);
+    document.getElementById("hint" + i).style.display = correct ? "none" : "block";
+    document.getElementById("rep" + i).style.display = correct ? "none" : "block";
+    if (correct) ok++;
+  });
+  const sc = document.getElementById("exo-score");
+  sc.textContent = `\u2714 ${ok} / ${exercices.length} correct${ok > 1 ? "s" : ""}`;
+  sc.style.color = ok === exercices.length ? "green" : "#111";
+}
+function resetExos() { renderExos(); }
+renderExos();
+
+// === FLASHCARDS ===
+let fcDeck = [], fcIndex = 0, fcFlipped = false, fcKnown = 0, fcTotal = 0, fcCat = "Tout";
+function initFlashcards() {
+  document.getElementById("fc-filters").innerHTML = cats.map(c =>
+    `<button class="${c === fcCat ? "active" : ""}" onclick="setFcCat('${c}')">${c}</button>`
+  ).join("");
+  if (!fcDeck.length) buildDeck(); else showCard();
+}
+function setFcCat(cat) {
+  fcCat = cat;
+  document.querySelectorAll("#fc-filters button").forEach(b => b.classList.toggle("active", b.textContent === cat));
+  buildDeck();
+}
+function buildDeck() {
+  fcDeck = (fcCat === "Tout" ? vocabulaire : vocabulaire.filter(v => v.cat === fcCat)).sort(() => Math.random() - .5);
+  fcIndex = 0; fcFlipped = false; fcKnown = 0; fcTotal = 0;
+  showCard();
+}
+function showCard() {
+  if (!fcDeck.length) return;
+  const c = fcDeck[fcIndex];
+  document.getElementById("fc-front").textContent = c.es;
+  document.getElementById("fc-back").textContent = c.fr;
+  document.getElementById("fc-ex").textContent = "\u2192 " + c.ex;
+  document.getElementById("fc-back").style.display = "none";
+  document.getElementById("fc-ex").style.display = "none";
+  fcFlipped = false;
+  document.getElementById("fc-progress").textContent = `${fcIndex + 1} / ${fcDeck.length}  \u2022  ${c.cat}`;
+  document.getElementById("fc-score").textContent = fcTotal ? `Session : ${fcKnown} sus / ${fcTotal} vus` : "";
+}
+function flipCard() {
+  fcFlipped = !fcFlipped;
+  document.getElementById("fc-back").style.display = fcFlipped ? "block" : "none";
+  document.getElementById("fc-ex").style.display = fcFlipped ? "block" : "none";
+}
+function nextCard() { fcIndex = (fcIndex + 1) % fcDeck.length; showCard(); }
+function prevCard() { fcIndex = (fcIndex - 1 + fcDeck.length) % fcDeck.length; showCard(); }
+function markCard(known) { fcTotal++; if (known) fcKnown++; nextCard(); }
+</script>
+</body>
+</html>
