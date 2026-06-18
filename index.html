@@ -2,680 +2,561 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="theme-color" content="#c1121f">
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
-<title>Español A2</title>
+<title>Español A2 — Assimil</title>
 <style>
-  :root {
-    --rouge: #c1121f; --jaune: #ffd60a; --vert: #2a9d3f; --rouge-err: #d62828;
-    --gris: #6c757d; --bg: #fafafa; --carte: #fff; --bord: #e2e2e2; --texte: #1a1a1a;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px;
-    line-height: 1.5; background: var(--bg); color: var(--texte); padding-bottom: 70px; }
-  .wrap { max-width: 640px; margin: 0 auto; padding: 14px; }
-  header { background: var(--rouge); color: #fff; padding: 14px; padding-top: max(14px, env(safe-area-inset-top));
-    position: sticky; top: 0; z-index: 50; }
-  header .wrap { padding-top: 0; padding-bottom: 0; }
-  header h1 { font-size: 18px; display: flex; align-items: center; gap: 8px; }
-  header .sub { font-size: 12px; opacity: .85; margin-top: 2px; }
-  .progress-global { height: 5px; background: rgba(255,255,255,.3); border-radius: 3px; margin-top: 8px; overflow: hidden; }
-  .progress-global > div { height: 100%; background: var(--jaune); transition: width .4s; }
-
-  h2 { font-size: 17px; margin: 4px 0 12px; }
-  .muted { color: var(--gris); font-size: 14px; }
-
-  /* Cartes d'unités */
-  .unit-card { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px;
-    padding: 16px; margin-bottom: 12px; cursor: pointer; transition: transform .1s, box-shadow .2s;
-    display: flex; align-items: center; gap: 14px; }
-  .unit-card:active { transform: scale(.99); }
-  .unit-card.locked { opacity: .55; cursor: not-allowed; }
-  .unit-num { width: 42px; height: 42px; border-radius: 50%; background: var(--rouge); color: #fff;
-    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; flex-shrink: 0; }
-  .unit-card.done .unit-num { background: var(--vert); }
-  .unit-card.locked .unit-num { background: var(--gris); }
-  .unit-info { flex: 1; min-width: 0; }
-  .unit-info .t { font-weight: 600; font-size: 15px; }
-  .unit-info .o { font-size: 13px; color: var(--gris); margin-top: 2px; }
-  .unit-bar { height: 4px; background: #eee; border-radius: 2px; margin-top: 7px; overflow: hidden; }
-  .unit-bar > div { height: 100%; background: var(--vert); transition: width .3s; }
-  .unit-badge { font-size: 18px; flex-shrink: 0; }
-
-  /* Boutons */
-  .btn { display: inline-block; padding: 12px 18px; background: var(--rouge); color: #fff; border: none;
-    border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; transition: opacity .15s; }
-  .btn:active { opacity: .8; }
-  .btn.sec { background: #fff; color: var(--texte); border: 1.5px solid var(--bord); }
-  .btn.full { width: 100%; }
-  .btn:disabled { opacity: .4; cursor: not-allowed; }
-  .btn-row { display: flex; gap: 10px; margin-top: 16px; }
-
-  /* Leçon */
-  .lecon { background: #fffdf5; border: 1px solid #f0e6c0; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-  .lecon ul { list-style: none; }
-  .lecon li { padding: 6px 0 6px 22px; position: relative; font-size: 14.5px; }
-  .lecon li::before { content: "▸"; position: absolute; left: 4px; color: var(--rouge); }
-  .lecon b { color: var(--rouge); }
-  .lecon em { font-style: normal; background: #fff3cd; padding: 1px 5px; border-radius: 4px; }
-
-  .voc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
-  .voc-item { background: var(--carte); border: 1px solid var(--bord); border-radius: 8px; padding: 9px 11px; }
-  .voc-item .es { font-weight: 600; font-size: 14px; }
-  .voc-item .fr { font-size: 12.5px; color: var(--gris); }
-
-  /* Exercice */
-  .exo-box { background: var(--carte); border: 1px solid var(--bord); border-radius: 12px; padding: 18px; }
-  .exo-type { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: var(--gris); margin-bottom: 8px; }
-  .exo-q { font-size: 17px; margin-bottom: 16px; }
-  .exo-q .blank { border-bottom: 2px solid var(--rouge); padding: 0 18px; }
-  .opt { display: block; width: 100%; text-align: left; padding: 13px 15px; margin-bottom: 9px;
-    background: #fff; border: 1.5px solid var(--bord); border-radius: 10px; font-size: 15px; cursor: pointer; transition: all .12s; }
-  .opt:active { transform: scale(.99); }
-  .opt.sel { border-color: var(--rouge); background: #fff5f5; }
-  .opt.correct { border-color: var(--vert); background: #eafaef; }
-  .opt.wrong { border-color: var(--rouge-err); background: #fdeaea; }
-  input.txt { width: 100%; padding: 12px 14px; border: 1.5px solid var(--bord); border-radius: 10px;
-    font-size: 16px; font-family: inherit; outline: none; }
-  input.txt:focus { border-color: var(--rouge); }
-  input.txt.correct { border-color: var(--vert); background: #eafaef; }
-  input.txt.wrong { border-color: var(--rouge-err); background: #fdeaea; }
-  .word-bank { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
-  .word-bank .chip { padding: 9px 13px; background: #fff; border: 1.5px solid var(--bord);
-    border-radius: 8px; cursor: pointer; font-size: 15px; }
-  .word-bank .chip:active { background: #f0f0f0; }
-  .answer-zone { min-height: 48px; border: 1.5px dashed var(--bord); border-radius: 10px; padding: 8px;
-    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; align-items: center; }
-  .answer-zone:empty::before { content: "Tape les mots dans l'ordre..."; color: #bbb; font-size: 14px; padding: 4px; }
-  .answer-zone .chip { padding: 9px 13px; background: var(--rouge); color: #fff; border-radius: 8px; cursor: pointer; font-size: 15px; }
-
-  /* Feedback */
-  .feedback { border-radius: 10px; padding: 14px; margin-top: 16px; font-size: 14.5px; display: none; }
-  .feedback.show { display: block; animation: slide .25s ease; }
-  @keyframes slide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-  .feedback.ok { background: #eafaef; border: 1px solid var(--vert); }
-  .feedback.ko { background: #fdeaea; border: 1px solid var(--rouge-err); }
-  .feedback .head { font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-  .feedback.ok .head { color: var(--vert); }
-  .feedback.ko .head { color: var(--rouge-err); }
-  .feedback .sol { margin: 6px 0; }
-  .feedback .sol b { color: var(--texte); }
-  .feedback .why { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,.08); }
-  .feedback .why b { color: var(--rouge); }
-  .feedback em { font-style: normal; background: #fff3cd; padding: 1px 4px; border-radius: 3px; }
-
-  .exo-progress { display: flex; gap: 5px; margin-bottom: 14px; }
-  .exo-progress .dot { flex: 1; height: 5px; border-radius: 3px; background: #ddd; }
-  .exo-progress .dot.done { background: var(--vert); }
-  .exo-progress .dot.fail { background: var(--rouge-err); }
-  .exo-progress .dot.cur { background: var(--rouge); }
-
-  /* Écran de fin */
-  .result-screen { text-align: center; padding: 30px 14px; }
-  .result-screen .big { font-size: 52px; }
-  .result-screen .score { font-size: 30px; font-weight: 700; margin: 10px 0; }
-
-  /* Nav bas */
-  .tabbar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--bord);
-    display: flex; padding-bottom: env(safe-area-inset-bottom); z-index: 50; }
-  .tabbar button { flex: 1; background: none; border: none; padding: 10px 4px; font-size: 11px;
-    color: var(--gris); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .tabbar button .ic { font-size: 21px; }
-  .tabbar button.active { color: var(--rouge); }
-
-  .view { display: none; }
-  .view.active { display: block; }
-
-  .install-banner { background: var(--jaune); color: #1a1a1a; padding: 12px 14px; border-radius: 10px;
-    margin-bottom: 14px; display: none; align-items: center; gap: 10px; font-size: 14px; }
-  .install-banner.show { display: flex; }
-  .install-banner button { margin-left: auto; }
-
-  /* Flashcards */
-  .fc-card { background: var(--carte); border: 2px solid var(--rouge); border-radius: 16px; padding: 44px 20px;
-    text-align: center; min-height: 170px; display: flex; flex-direction: column; justify-content: center;
-    cursor: pointer; user-select: none; margin-bottom: 14px; }
-  .fc-card .front { font-size: 27px; font-weight: 700; }
-  .fc-card .back { font-size: 19px; color: var(--gris); margin-top: 10px; }
-  .stat-row { display: flex; gap: 10px; margin-bottom: 14px; }
-  .stat-box { flex: 1; background: var(--carte); border: 1px solid var(--bord); border-radius: 10px; padding: 12px; text-align: center; }
-  .stat-box .n { font-size: 24px; font-weight: 700; color: var(--rouge); }
-  .stat-box .l { font-size: 12px; color: var(--gris); }
-  .chip-filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
-  .chip-filter button { padding: 6px 12px; border: 1px solid var(--bord); border-radius: 20px; background: #fff; font-size: 13px; cursor: pointer; }
-  .chip-filter button.active { background: var(--rouge); color: #fff; border-color: var(--rouge); }
+:root{--r:#c1121f;--j:#ffd60a;--v:#2a9d3f;--re:#d62828;--g:#6c757d;--bg:#fafafa;--card:#fff;--bord:#e2e2e2;--t:#1a1a1a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;line-height:1.5;background:var(--bg);color:var(--t);padding-bottom:72px}
+.wrap{max-width:640px;margin:0 auto;padding:14px}
+header{background:var(--r);color:#fff;padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));position:sticky;top:0;z-index:50}
+header h1{font-size:17px;display:flex;align-items:center;gap:7px}
+header .sub{font-size:11px;opacity:.85;margin-top:2px}
+.prog-g{height:5px;background:rgba(255,255,255,.3);border-radius:3px;margin-top:7px;overflow:hidden}
+.prog-g>div{height:100%;background:var(--j);transition:width .4s}
+h2{font-size:16px;margin:4px 0 12px}
+.muted{color:var(--g);font-size:13px}
+/* Unités */
+.unit-card{background:var(--card);border:1px solid var(--bord);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px}
+.unit-card:active{opacity:.85}
+.unit-card.locked{opacity:.5;cursor:not-allowed}
+.unum{width:40px;height:40px;border-radius:50%;background:var(--r);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;flex-shrink:0}
+.unit-card.done .unum{background:var(--v)}
+.unit-card.locked .unum{background:var(--g)}
+.uinfo{flex:1;min-width:0}
+.uinfo .t{font-weight:600;font-size:14px}
+.uinfo .o{font-size:12px;color:var(--g);margin-top:1px}
+.ubar{height:4px;background:#eee;border-radius:2px;margin-top:6px;overflow:hidden}
+.ubar>div{height:100%;background:var(--v);transition:width .3s}
+.ubadge{font-size:17px;flex-shrink:0}
+/* Boutons */
+.btn{display:inline-block;padding:11px 16px;background:var(--r);color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:opacity .15s}
+.btn:active{opacity:.75}
+.btn.sec{background:#fff;color:var(--t);border:1.5px solid var(--bord)}
+.btn.full{width:100%}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn-row{display:flex;gap:9px;margin-top:14px}
+/* Leçon */
+.lecon{background:#fffdf5;border:1px solid #f0e6c0;border-radius:12px;padding:14px;margin-bottom:14px}
+.lecon ul{list-style:none}
+.lecon li{padding:5px 0 5px 20px;position:relative;font-size:14px}
+.lecon li::before{content:"▸";position:absolute;left:3px;color:var(--r)}
+.lecon b{color:var(--r)}
+.lecon em{font-style:normal;background:#fff3cd;padding:1px 4px;border-radius:3px;font-size:13px}
+/* Dialogue */
+.dialogue{margin-bottom:14px}
+.dl-row{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+.dl-es{background:#fff0f0;border-radius:8px;padding:8px 11px;font-size:13.5px;flex:1;border-left:3px solid var(--r)}
+.dl-fr{background:#f0f4ff;border-radius:8px;padding:8px 11px;font-size:12.5px;color:var(--g);flex:1}
+/* Vocab grille */
+.voc-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.voc-item{background:var(--card);border:1px solid var(--bord);border-radius:8px;padding:8px 10px}
+.voc-item .es{font-weight:600;font-size:13px}
+.voc-item .fr{font-size:12px;color:var(--g)}
+/* Exercices */
+.exo-box{background:var(--card);border:1px solid var(--bord);border-radius:12px;padding:16px}
+.exo-type{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--g);margin-bottom:7px}
+.exo-q{font-size:16px;margin-bottom:14px}
+.exo-q .blank{border-bottom:2px solid var(--r);padding:0 16px}
+.opt{display:block;width:100%;text-align:left;padding:12px 14px;margin-bottom:8px;background:#fff;border:1.5px solid var(--bord);border-radius:10px;font-size:14px;cursor:pointer;transition:all .12s}
+.opt:active{transform:scale(.99)}
+.opt.sel{border-color:var(--r);background:#fff5f5}
+.opt.correct{border-color:var(--v);background:#eafaef}
+.opt.wrong{border-color:var(--re);background:#fdeaea}
+input.txt{width:100%;padding:11px 13px;border:1.5px solid var(--bord);border-radius:10px;font-size:15px;font-family:inherit;outline:none}
+input.txt:focus{border-color:var(--r)}
+input.txt.correct{border-color:var(--v);background:#eafaef}
+input.txt.wrong{border-color:var(--re);background:#fdeaea}
+.word-bank{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px}
+.chip{padding:8px 12px;background:#fff;border:1.5px solid var(--bord);border-radius:8px;cursor:pointer;font-size:14px}
+.chip:active{background:#f0f0f0}
+.answer-zone{min-height:46px;border:1.5px dashed var(--bord);border-radius:10px;padding:7px;display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;align-items:center}
+.answer-zone:empty::before{content:"Tape les mots dans l'ordre...";color:#bbb;font-size:13px;padding:3px}
+.answer-zone .chip{background:var(--r);color:#fff;border-color:var(--r)}
+/* Feedback */
+.feedback{border-radius:10px;padding:12px;margin-top:14px;font-size:13.5px;display:none}
+.feedback.show{display:block;animation:sl .22s ease}
+@keyframes sl{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.feedback.ok{background:#eafaef;border:1px solid var(--v)}
+.feedback.ko{background:#fdeaea;border:1px solid var(--re)}
+.feedback .head{font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.feedback.ok .head{color:var(--v)}
+.feedback.ko .head{color:var(--re)}
+.feedback .sol{margin:5px 0}
+.feedback .why{margin-top:7px;padding-top:7px;border-top:1px solid rgba(0,0,0,.08)}
+.feedback .why b{color:var(--r)}
+.feedback em{font-style:normal;background:#fff3cd;padding:1px 3px;border-radius:3px}
+.exo-dots{display:flex;gap:4px;margin-bottom:12px}
+.exo-dots .d{flex:1;height:5px;border-radius:3px;background:#ddd}
+.exo-dots .d.done{background:var(--v)}
+.exo-dots .d.fail{background:var(--re)}
+.exo-dots .d.cur{background:var(--r)}
+/* Résultat */
+.result-screen{text-align:center;padding:28px 14px}
+.result-screen .big{font-size:50px}
+.result-screen .score{font-size:28px;font-weight:700;margin:9px 0}
+/* Tabbar */
+.tabbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--bord);display:flex;padding-bottom:env(safe-area-inset-bottom);z-index:50}
+.tabbar button{flex:1;background:none;border:none;padding:9px 3px;font-size:10px;color:var(--g);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tabbar button .ic{font-size:20px}
+.tabbar button.active{color:var(--r)}
+.view{display:none}
+.view.active{display:block}
+.install-banner{background:var(--j);color:#1a1a1a;padding:11px 13px;border-radius:10px;margin-bottom:12px;display:none;align-items:center;gap:9px;font-size:13px}
+.install-banner.show{display:flex}
+/* Flashcards */
+.fc-card{background:var(--card);border:2px solid var(--r);border-radius:16px;padding:40px 18px;text-align:center;min-height:160px;display:flex;flex-direction:column;justify-content:center;cursor:pointer;user-select:none;margin-bottom:13px}
+.fc-card .front{font-size:25px;font-weight:700}
+.fc-card .back{font-size:18px;color:var(--g);margin-top:9px}
+.fc-prog{text-align:center;color:var(--g);font-size:12px;margin-bottom:7px}
+.filters{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px}
+.filters button{padding:5px 11px;border:1px solid var(--bord);border-radius:20px;background:#fff;font-size:12px;cursor:pointer}
+.filters button.active{background:var(--r);color:#fff;border-color:var(--r)}
+/* Entraînement */
+.train-card{background:var(--card);border:1px solid var(--bord);border-radius:12px;padding:18px;text-align:center;margin-bottom:12px}
+.train-q{font-size:22px;font-weight:700;margin-bottom:6px}
+.train-sub{font-size:12px;color:var(--g);margin-bottom:16px}
+.train-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.train-opt{padding:12px 8px;background:#fff;border:1.5px solid var(--bord);border-radius:10px;font-size:13.5px;cursor:pointer;text-align:center;transition:all .12s}
+.train-opt:active{transform:scale(.98)}
+.train-opt.correct{border-color:var(--v);background:#eafaef;color:#1a6e1a;font-weight:600}
+.train-opt.wrong{border-color:var(--re);background:#fdeaea;color:#9b1c1c}
+.train-score{display:flex;gap:10px;margin-bottom:14px}
+.train-score .sb{flex:1;background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:11px;text-align:center}
+.train-score .sb .n{font-size:22px;font-weight:700;color:var(--r)}
+.train-score .sb .l{font-size:11px;color:var(--g)}
+.mode-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.mode-btn{padding:9px 14px;border:1.5px solid var(--bord);border-radius:10px;background:#fff;font-size:13px;cursor:pointer;flex:1;text-align:center}
+.mode-btn.active{background:var(--r);color:#fff;border-color:var(--r)}
+.streak{text-align:center;font-size:12px;color:var(--g);margin-bottom:10px}
+/* Stat boxes */
+.stat-row{display:flex;gap:9px;margin-bottom:13px}
+.stat-box{flex:1;background:var(--card);border:1px solid var(--bord);border-radius:10px;padding:11px;text-align:center}
+.stat-box .n{font-size:22px;font-weight:700;color:var(--r)}
+.stat-box .l{font-size:11px;color:var(--g)}
+/* Section title in exos */
+.sec-title{font-weight:700;font-size:13px;color:var(--g);margin:16px 0 7px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;padding-bottom:3px}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="wrap">
-    <h1><span>🇪🇸</span> Español <span style="font-size:12px;background:rgba(255,255,255,.2);padding:2px 7px;border-radius:6px">A1 → A2</span></h1>
-    <div class="sub" id="header-sub">Pour le voyage et la vie quotidienne</div>
-    <div class="progress-global"><div id="global-bar" style="width:0%"></div></div>
-  </div>
+<div class="wrap" style="padding-top:0;padding-bottom:0">
+<h1><span>&#127466;&#127480;</span> Espa&#241;ol <span style="font-size:11px;background:rgba(255,255,255,.2);padding:2px 6px;border-radius:5px">Assimil A1&#8594;A2</span></h1>
+<div class="sub" id="header-sub">Pour le voyage et la vie quotidienne</div>
+<div class="prog-g"><div id="global-bar" style="width:0%"></div></div>
+</div>
 </header>
 
 <div class="wrap">
+<!-- PARCOURS -->
+<div class="view active" id="view-parcours">
+<div class="install-banner" id="install-banner">
+<span>&#128242; Installe l'app sur ton &#233;cran d'accueil</span>
+<button class="btn" id="install-btn" style="padding:6px 11px;font-size:12px;margin-left:auto">Installer</button>
+</div>
+<h2>Ton parcours</h2>
+<p class="muted" style="margin-bottom:14px">12 unit&#233;s inspir&#233;es de l'Assimil. T&#233;l&#233;charge 80&#160;% pour d&#233;bloquer la suivante.</p>
+<div id="units-list"></div>
+</div>
 
-  <!-- VUE PARCOURS -->
-  <div class="view active" id="view-parcours">
-    <div class="install-banner" id="install-banner">
-      <span>📲 Installe l'app sur ton écran d'accueil</span>
-      <button class="btn" id="install-btn" style="padding:7px 12px;font-size:13px">Installer</button>
-    </div>
-    <h2>Ton parcours</h2>
-    <p class="muted" style="margin-bottom:16px">Termine chaque unité (80%+) pour débloquer la suivante.</p>
-    <div id="units-list"></div>
-  </div>
+<!-- UNIT&#201; -->
+<div class="view" id="view-unit"></div>
 
-  <!-- VUE LEÇON / EXERCICES -->
-  <div class="view" id="view-unit"></div>
+<!-- R&#201;VISION -->
+<div class="view" id="view-revision">
+<h2>R&#233;vision adaptative</h2>
+<p class="muted" style="margin-bottom:14px">Exercices que tu as rat&#233;s, dans un ordre al&#233;atoire.</p>
+<div id="revision-content"></div>
+</div>
 
-  <!-- VUE RÉVISION -->
-  <div class="view" id="view-revision">
-    <h2>Révision adaptative</h2>
-    <p class="muted" style="margin-bottom:16px">L'app te repropose en priorité les exercices que tu as ratés.</p>
-    <div id="revision-content"></div>
-  </div>
+<!-- ENTRA&#206;NEMENT -->
+<div class="view" id="view-train">
+<h2>Entra&#238;nement vocabulaire</h2>
+<div class="mode-btns">
+<button class="mode-btn active" id="mode-es" onclick="setTrainMode('es',this)">&#127466;&#127480; ES &#8594; FR</button>
+<button class="mode-btn" id="mode-fr" onclick="setTrainMode('fr',this)">&#127467;&#127479; FR &#8594; ES</button>
+</div>
+<div class="filters" id="train-filters"></div>
+<div class="train-score">
+<div class="sb"><div class="n" id="tr-ok">0</div><div class="l">Corrects</div></div>
+<div class="sb"><div class="n" id="tr-tot">0</div><div class="l">R&#233;pondu</div></div>
+<div class="sb"><div class="n" id="tr-str">0</div><div class="l">S&#233;rie</div></div>
+</div>
+<div class="streak" id="train-streak"></div>
+<div id="train-card-zone"></div>
+</div>
 
-  <!-- VUE FLASHCARDS -->
-  <div class="view" id="view-flash">
-    <h2>Flashcards — vocabulaire</h2>
-    <div class="chip-filter" id="fc-filters"></div>
-    <div class="muted" id="fc-progress" style="text-align:center;margin-bottom:8px"></div>
-    <div class="fc-card" id="fc-card" onclick="flipCard()">
-      <div class="front" id="fc-front"></div>
-      <div class="back" id="fc-back" style="display:none"></div>
-    </div>
-    <div class="btn-row">
-      <button class="btn sec" style="flex:1" onclick="markCard(false)">✗ À revoir</button>
-      <button class="btn" style="flex:1" onclick="markCard(true)">✓ Je sais</button>
-    </div>
-  </div>
-
+<!-- FLASHCARDS -->
+<div class="view" id="view-flash">
+<h2>Flashcards</h2>
+<div class="filters" id="fc-filters"></div>
+<div class="fc-prog" id="fc-prog"></div>
+<div class="fc-card" id="fc-card" onclick="flipCard()">
+<div class="front" id="fc-front"></div>
+<div class="back" id="fc-back" style="display:none"></div>
+</div>
+<div class="btn-row">
+<button class="btn sec" style="flex:1" onclick="markCard(false)">&#10007; &#192; revoir</button>
+<button class="btn" style="flex:1" onclick="markCard(true)">&#10003; Je sais</button>
+</div>
+<p style="font-size:12px;color:var(--g);text-align:center;margin-top:10px" id="fc-score"></p>
+</div>
 </div>
 
 <nav class="tabbar">
-  <button class="active" data-view="parcours" onclick="switchView('parcours',this)"><span class="ic">🗺️</span>Parcours</button>
-  <button data-view="revision" onclick="switchView('revision',this)"><span class="ic">🔁</span>Révision</button>
-  <button data-view="flash" onclick="switchView('flash',this)"><span class="ic">🃏</span>Flashcards</button>
+<button class="active" data-v="parcours" onclick="switchView('parcours',this)"><span class="ic">&#128506;</span>Parcours</button>
+<button data-v="revision" onclick="switchView('revision',this)"><span class="ic">&#128260;</span>R&#233;vision</button>
+<button data-v="train" onclick="switchView('train',this)"><span class="ic">&#127919;</span>Entra&#238;nement</button>
+<button data-v="flash" onclick="switchView('flash',this)"><span class="ic">&#127183;</span>Flashcards</button>
 </nav>
 
 <script>
-const UNITS = [{"id": 1,"titre": "Se présenter — ser & estar","objectif": "Dire qui tu es, d'où tu viens, comment tu vas.","lecon": ["**SER** = identité, origine, profession, caractéristiques permanentes. → *Soy francés. Ella es médica.*","**ESTAR** = état temporaire, humeur, **localisation**. → *Estoy cansado. Madrid está en España.*","Présent de SER : soy, eres, es, somos, sois, son.","Présent de ESTAR : estoy, estás, está, estamos, estáis, están.","Astuce : si l'adjectif peut changer (cansado, contento, enfermo) → estar. S'il définit la personne (alto, simpático, español) → ser."],"vocab": [["¿Cómo te llamas?","Comment tu t'appelles ?"],["Me llamo...","Je m'appelle..."],["Soy de...","Je viens de..."],["Encantado/a","Enchanté(e)"],["¿De dónde eres?","D'où viens-tu ?"],["Tengo ... años","J'ai ... ans"]],"exos": [{"type": "select","q": "Yo ___ francés.","rep": "soy","opts": ["soy","estoy"],"expl": "Origine/nationalité = caractéristique permanente → **ser**. 1re pers. : *soy*."},{"type": "select","q": "Hoy ___ muy cansado.","rep": "estoy","opts": ["soy","estoy"],"expl": "« Fatigué » est un état temporaire → **estar**. 1re pers. : *estoy*."},{"type": "select","q": "Mi madre ___ profesora.","rep": "es","opts": ["es","está"],"expl": "La profession est durable → **ser**, 3e pers. : *es*."},{"type": "select","q": "Barcelona ___ en Cataluña.","rep": "está","opts": ["es","está"],"expl": "Localisation géographique → toujours **estar**, même pour une ville. 3e pers. : *está*."},{"type": "trou","q": "— ¿De dónde ___ (tú)? — ___ (yo) de Burdeos.","rep": "eres soy","expl": "Origine → **ser**. *eres* (2e pers.) puis *soy* (1re pers.). Écris les deux formes séparées par une espace."},{"type": "select","q": "Mis amigos ___ muy simpáticos.","rep": "son","opts": ["son","están"],"expl": "« Sympathique » décrit la personnalité = permanent → **ser**, 3e pers. plur. : *son*."},{"type": "ordre","q": "Remets dans l'ordre : [ años / Tengo / veinte ]","rep": "Tengo veinte años","expl": "En espagnol, l'âge se dit avec **tener** (avoir) : *Tengo veinte años* = littéralement « j'ai vingt ans ». L'ordre est sujet-verbe-complément."},{"type": "trad","q": "Traduis : « Je m'appelle Ana et je suis espagnole. »","rep": "Me llamo Ana y soy española","expl": "*Me llamo* (verbe pronominal llamarse) + nationalité avec **ser** (*soy española*, féminin)."}]},{"id": 2,"titre": "Le présent — verbes réguliers","objectif": "Parler de tes habitudes et de ton quotidien.","lecon": ["3 groupes selon la terminaison : **-AR** (hablar), **-ER** (comer), **-IR** (vivir).","**-AR** : -o, -as, -a, -amos, -áis, -an → *hablo, hablas, habla, hablamos, habláis, hablan*.","**-ER** : -o, -es, -e, -emos, -éis, -en → *como, comes, come, comemos, coméis, comen*.","**-IR** : -o, -es, -e, -imos, -ís, -en → *vivo, vives, vive, vivimos, vivís, viven*.","Note : -ER et -IR ne diffèrent qu'à « nosotros » (-emos/-imos) et « vosotros » (-éis/-ís)."],"vocab": [["trabajar","travailler"],["estudiar","étudier"],["comer","manger"],["vivir","vivre / habiter"],["beber","boire"],["escribir","écrire"]],"exos": [{"type": "trou","q": "Yo ___ (hablar) español.","rep": "hablo","expl": "Verbe en **-AR**, 1re pers. sing. : radical *habl-* + **-o** = *hablo*."},{"type": "trou","q": "Nosotros ___ (comer) a las dos.","rep": "comemos","expl": "Verbe en **-ER**, « nosotros » : radical *com-* + **-emos** = *comemos*."},{"type": "trou","q": "Ellos ___ (vivir) en Madrid.","rep": "viven","expl": "Verbe en **-IR**, 3e pers. plur. : *viv-* + **-en** = *viven*. (Même terminaison que -ER à cette personne.)"},{"type": "trou","q": "¿Vosotros ___ (escribir) muchos correos?","rep": "escribís","expl": "Verbe en **-IR**, « vosotros » : *escrib-* + **-ís** = *escribís*. Attention, pas *-éis* (ça c'est -ER/-AR)."},{"type": "trou","q": "¿Tú ___ (estudiar) francés también?","rep": "estudias","expl": "Verbe en **-AR**, 2e pers. sing. : *estudi-* + **-as** = *estudias*."},{"type": "select","q": "Maria y yo ___ café cada mañana.","rep": "bebemos","opts": ["bebo","bebéis","bebemos"],"expl": "« Maria y yo » = nosotros. Verbe en -ER : *beb-* + **-emos** = *bebemos*."},{"type": "trad","q": "Traduis : « Nous travaillons à Madrid. »","rep": "Trabajamos en Madrid","expl": "trabajar (-AR), nosotros : *trabaj-* + **-amos**. On utilise **en** pour « à » devant un lieu : *en Madrid*."},{"type": "ordre","q": "Remets : [ en / Vivo / un / piso / pequeño ]","rep": "Vivo en un piso pequeño","expl": "L'adjectif (*pequeño*) se place **après** le nom en espagnol : *un piso pequeño*, pas *un pequeño piso*."}]},{"id": 3,"titre": "Verbes irréguliers fréquents","objectif": "Utiliser tener, ir, querer, poder, hacer — indispensables au quotidien.","lecon": ["**TENER** (avoir) : tengo, tienes, tiene, tenemos, tenéis, tienen. (e→ie sauf nous/vous)","**IR** (aller) : voy, vas, va, vamos, vais, van.","**QUERER** (vouloir) : quiero, quieres, quiere, queremos, queréis, quieren. (e→ie)","**PODER** (pouvoir) : puedo, puedes, puede, podemos, podéis, pueden. (o→ue)","**HACER** (faire) : hago, haces, hace, hacemos, hacéis, hacen. (irrégulier seulement à « yo »)","Les **diphtongues** (e→ie, o→ue) touchent toutes les personnes SAUF nosotros et vosotros."],"vocab": [["tener hambre","avoir faim"],["tener que + inf.","devoir faire qqch"],["ir de compras","faire les courses"],["querer","vouloir"],["poder","pouvoir"],["hacer deporte","faire du sport"]],"exos": [{"type": "trou","q": "Yo ___ (tener) dos hermanos.","rep": "tengo","expl": "TENER à « yo » est doublement irrégulier : *teng-* + **-o** = *tengo* (pas de diphtongue à la 1re pers.)."},{"type": "trou","q": "Ella ___ (tener) hambre.","rep": "tiene","expl": "TENER, 3e pers. : la diphtongue **e→ie** s'applique : *tiene*."},{"type": "trou","q": "Nosotros ___ (querer) un café.","rep": "queremos","expl": "QUERER, « nosotros » : **pas** de diphtongue à cette personne → *queremos* (radical *quer-* intact)."},{"type": "trou","q": "¿___ (poder, tú) ayudarme?","rep": "puedes","expl": "PODER, 2e pers. : diphtongue **o→ue** : *puedes*."},{"type": "select","q": "Los niños ___ al colegio en autobús.","rep": "van","opts": ["van","vais","vamos"],"expl": "IR, 3e pers. plur. (« los niños » = ellos) : *van*."},{"type": "trou","q": "Yo ___ (hacer) los deberes por la tarde.","rep": "hago","expl": "HACER irrégulier à « yo » : *hag-* + **-o** = *hago* (le c devient g)."},{"type": "trad","q": "Traduis : « Je veux aller à la plage. »","rep": "Quiero ir a la playa","expl": "querer conjugué (*quiero*) + **infinitif** *ir*. Deux verbes qui se suivent : le 2e reste à l'infinitif."},{"type": "ordre","q": "Remets : [ que / Tengo / trabajar / mañana ]","rep": "Tengo que trabajar mañana","expl": "**tener que + infinitif** = devoir : *tengo que trabajar* = « je dois travailler »."}]},{"id": 4,"titre": "Goûts et préférences — gustar","objectif": "Exprimer ce que tu aimes et ce que tu n'aimes pas.","lecon": ["**GUSTAR** ne marche pas comme « aimer ». Littéralement : « ça me plaît ». La chose aimée est le **sujet**.","Structure : pronom (me/te/le/nos/os/les) + gusta/gustan + la chose.","**gusta** (singulier) : *Me gusta el café.* (le café me plaît)","**gustan** (pluriel) : *Me gustan los libros.* (les livres me plaisent)","Avec un verbe → toujours **gusta** : *Me gusta viajar.*","Renforcer : *A mí me gusta...* / Pour « ne pas aimer » : *No me gusta...*"],"vocab": [["Me gusta","J'aime (sing.)"],["Me gustan","J'aime (plur.)"],["Me encanta","J'adore"],["No me gusta","Je n'aime pas"],["también","aussi"],["tampoco","non plus"]],"exos": [{"type": "select","q": "Me ___ el chocolate.","rep": "gusta","opts": ["gusta","gustan"],"expl": "« el chocolate » est singulier → **gusta**. (C'est le chocolat qui « plaît », il est le sujet.)"},{"type": "select","q": "Me ___ las películas españolas.","rep": "gustan","opts": ["gusta","gustan"],"expl": "« las películas » est pluriel → **gustan**. Le verbe s'accorde avec la chose aimée, pas avec « je »."},{"type": "select","q": "Me ___ viajar por Europa.","rep": "gusta","opts": ["gusta","gustan"],"expl": "Devant un **verbe à l'infinitif** (viajar), toujours **gusta** au singulier."},{"type": "trou","q": "A nosotros ___ ___ (gustar) la playa.","rep": "nos gusta","expl": "Pour « nous » : pronom **nos** + **gusta** (la playa = singulier). → *nos gusta*."},{"type": "trad","q": "Traduis : « Je n'aime pas les légumes. »","rep": "No me gustan las verduras","expl": "Négation **no** devant le pronom + **gustan** (las verduras = pluriel). → *No me gustan las verduras.*"},{"type": "select","q": "— Me gusta el café. — A mí ___.","rep": "también","opts": ["también","tampoco"],"expl": "Pour approuver une phrase **positive**, on dit **también** (« moi aussi »). *tampoco* sert après une négation."},{"type": "select","q": "— No me gusta el ruido. — A mí ___.","rep": "tampoco","opts": ["también","tampoco"],"expl": "Après une phrase **négative**, on enchaîne avec **tampoco** (« moi non plus »)."},{"type": "ordre","q": "Remets : [ encanta / Me / música / la ]","rep": "Me encanta la música","expl": "*encantar* marche comme *gustar* : pronom **me** + **encanta** + la chose (la música)."}]},{"id": 5,"titre": "Le passé composé — pretérito perfecto","objectif": "Raconter ce que tu as fait aujourd'hui / récemment.","lecon": ["Structure : **haber** (présent) + **participe passé**. Sert pour un passé récent ou lié au présent.","haber : he, has, ha, hemos, habéis, han.","Participe : **-AR → -ado** (hablado), **-ER/-IR → -ido** (comido, vivido).","Participes **irréguliers** à connaître : hacer→**hecho**, ver→**visto**, escribir→**escrito**, volver→**vuelto**, decir→**dicho**, abrir→**abierto**.","Mots déclencheurs : *hoy, esta mañana, este año, ya, todavía no, nunca*."],"vocab": [["hoy","aujourd'hui"],["esta mañana","ce matin"],["ya","déjà"],["todavía no","pas encore"],["nunca","jamais"],["esta semana","cette semaine"]],"exos": [{"type": "trou","q": "Hoy yo ___ ___ (comer) paella.","rep": "he comido","expl": "*he* (haber, 1re pers.) + *comido* (participe de comer, -ER → -ido). → *he comido*."},{"type": "trou","q": "Esta mañana ella ___ ___ (hacer) deporte.","rep": "ha hecho","expl": "*ha* + participe **irrégulier** de hacer = **hecho** (pas *hacido*). → *ha hecho*."},{"type": "trou","q": "¿___ ___ (ver, vosotros) la película?","rep": "Habéis visto","expl": "*habéis* + participe irrégulier de ver = **visto**. → *Habéis visto*."},{"type": "trou","q": "Todavía no ___ ___ (llegar, ellos).","rep": "han llegado","expl": "*han* (3e pers. plur.) + *llegado* (-AR → -ado). → *han llegado*."},{"type": "select","q": "Este año nosotros ___ a España.","rep": "hemos viajado","opts": ["hemos viajado","viajamos ayer","viajábamos"],"expl": "« este año » (période non terminée) appelle le **passé composé** : *hemos viajado*."},{"type": "trou","q": "Yo ___ ___ (escribir) tres correos hoy.","rep": "he escrito","expl": "Participe irrégulier de escribir = **escrito**. → *he escrito*."},{"type": "trad","q": "Traduis : « As-tu déjà mangé ? » (tu)","rep": "¿Ya has comido?","expl": "*ya* (déjà) + *has* (2e pers.) + *comido*. L'ordre courant : *¿Ya has comido?*"},{"type": "ordre","q": "Remets : [ abierto / La tienda / ha / no ]","rep": "La tienda no ha abierto","expl": "Négation **no** juste avant *haber* : *no ha* + participe irrégulier **abierto** (abrir). → *La tienda no ha abierto.*"}]},{"id": 6,"titre": "Le prétérit — pretérito indefinido","objectif": "Raconter des actions passées datées (hier, l'an dernier, en 2020).","lecon": ["Le prétérit = action passée **terminée et datée**. Différent du passé composé (passé récent/non daté).","**-AR** : -é, -aste, -ó, -amos, -asteis, -aron → *hablé, hablaste, habló...*","**-ER/-IR** : -í, -iste, -ió, -imos, -isteis, -ieron → *comí, comiste, comió...*","Irréguliers très fréquents : **ser/ir** = fui, fuiste, fue, fuimos, fuisteis, fueron (mêmes formes !).","**estar** = estuve, estuviste, estuvo... / **tener** = tuve, tuviste, tuvo... / **hacer** = hice, hiciste, hizo...","Mots déclencheurs : *ayer, el año pasado, en 2020, la semana pasada, anoche*."],"vocab": [["ayer","hier"],["anoche","hier soir / cette nuit"],["el año pasado","l'année dernière"],["la semana pasada","la semaine dernière"],["hace dos días","il y a deux jours"],["entonces","alors / à ce moment-là"]],"exos": [{"type": "trou","q": "Ayer yo ___ (hablar) con mi jefe.","rep": "hablé","expl": "-AR, 1re pers. au prétérit : radical + **-é** = *hablé*. (Accent sur le é !)"},{"type": "trou","q": "Ella ___ (comer) en un restaurante anoche.","rep": "comió","expl": "-ER, 3e pers. : radical + **-ió** = *comió* (accent sur le o)."},{"type": "trou","q": "El año pasado nosotros ___ (ir) a México.","rep": "fuimos","expl": "IR au prétérit est irrégulier : *fui, fuiste, fue, fuimos...* « nosotros » = **fuimos**. (Identique à ser !)"},{"type": "trou","q": "¿Dónde ___ (estar, tú) ayer?","rep": "estuviste","expl": "ESTAR irrégulier : *estuve, estuviste...* 2e pers. = **estuviste** (radical *estuv-*)."},{"type": "trou","q": "Ellos ___ (llegar) tarde a la fiesta.","rep": "llegaron","expl": "-AR, 3e pers. plur. : radical + **-aron** = *llegaron*."},{"type": "select","q": "En 2019 yo ___ en Italia.","rep": "viví","opts": ["viví","he vivido","vivo"],"expl": "Date précise et révolue (« en 2019 ») → **prétérit** : *viví*. Le passé composé serait pour une période liée au présent."},{"type": "trou","q": "Él ___ (hacer) la cena ayer.","rep": "hizo","expl": "HACER au prétérit, 3e pers. : **hizo** (le c devient z devant o pour garder le son). Radical *hic-/hiz-*."},{"type": "trad","q": "Traduis : « Hier nous sommes allés au cinéma. »","rep": "Ayer fuimos al cine","expl": "« aller » au passé = ir → *fuimos*. *a + el = al* : *al cine*."}]},{"id": 7,"titre": "Futur proche & se débrouiller en voyage","objectif": "Parler de tes projets et gérer les situations de voyage.","lecon": ["**Futur proche** : ir (présent) + **a** + infinitif. → *Voy a viajar.* (Je vais voyager.)","voy/vas/va/vamos/vais/van + **a** + infinitif. Le « a » est obligatoire.","**Por** vs **Para** : *por* = cause, motif, « à travers » (*Gracias por todo*). *para* = but, destination, destinataire (*Esto es para ti*).","Demander poliment : *¿Podría...? / Quería...* (conditionnel de politesse).","Voyage utile : *¿Cuánto cuesta? / ¿Dónde está...? / Quería reservar... / La cuenta, por favor.*"],"vocab": [["Voy a...","Je vais... (futur)"],["¿Cuánto cuesta?","Combien ça coûte ?"],["¿Dónde está...?","Où se trouve... ?"],["Quería reservar","Je voudrais réserver"],["una habitación","une chambre"],["la cuenta, por favor","l'addition, s'il vous plaît"]],"exos": [{"type": "trou","q": "Mañana yo ___ ___ ___ (ir a estudiar) español.","rep": "voy a estudiar","expl": "Futur proche = *voy* + **a** + infinitif *estudiar*. N'oublie pas le **a** : *voy a estudiar*."},{"type": "trou","q": "Ellos ___ ___ ___ (ir a viajar) en verano.","rep": "van a viajar","expl": "3e pers. plur. : *van* + **a** + *viajar* = *van a viajar*."},{"type": "select","q": "Gracias ___ tu ayuda.","rep": "por","opts": ["por","para"],"expl": "Remercier pour un motif/une cause → **por**. *Gracias por...* est une formule figée."},{"type": "select","q": "Este regalo es ___ ti.","rep": "para","opts": ["por","para"],"expl": "Le destinataire d'un cadeau → **para**. *para ti* = « pour toi »."},{"type": "select","q": "Estudio español ___ trabajar en España.","rep": "para","opts": ["por","para"],"expl": "Exprimer un **but/objectif** (« afin de ») → **para** + infinitif."},{"type": "trad","q": "Traduis : « Je voudrais réserver une chambre. »","rep": "Quería reservar una habitación","expl": "*Quería* = formule de politesse (« je voudrais ») + infinitif *reservar*. *una habitación* = une chambre."},{"type": "trad","q": "Traduis : « Où se trouve la gare ? »","rep": "¿Dónde está la estación?","expl": "Localisation → **estar** : *¿Dónde está...?* + *la estación* (la gare)."},{"type": "ordre","q": "Remets : [ cuesta / Cuánto / esto / ¿ / ? ]","rep": "¿Cuánto cuesta esto?","expl": "Question de prix : *¿Cuánto cuesta...?* (combien coûte) + *esto* (ceci). Pense aux deux points d'interrogation ¿ ?"}]}]
+const UNITS=[{"id":1,"titre":"Premiers contacts — ser, estar, ir","objectif":"Se présenter, dire d'où on vient, aller quelque part.","lecon":["**SER** = identité durable : nationalité, profession, caractère. → *Soy francés. Ella es médica.*","**ESTAR** = état temporaire + **lieu**. → *Estoy cansado. Madrid está en España.*","**IR** (aller) : voy, vas, va, vamos, vais, van. → *Voy a casa. ¿Vienes conmigo?*","**SER présent** : soy, eres, es, somos, sois, son.","**ESTAR présent** : estoy, estás, está, estamos, estáis, están.","Astuce Assimil : si tu peux dire « en ce moment » → estar. Si c'est toujours vrai → ser."],"dialogue":[["— ¿Cómo te llamas?","— Comment tu t'appelles ?"],["— Me llamo Ana. Soy española.","— Je m'appelle Ana. Je suis espagnole."],["— ¿De dónde eres?","— D'où viens-tu ?"],["— Soy de Madrid. ¿Y tú?","— Je suis de Madrid. Et toi ?"],["— Yo soy francés, de Burdeos.","— Moi je suis français, de Bordeaux."],["— ¿Adónde vas?","— Où vas-tu ?"],["— Voy a casa. Estoy muy cansado.","— Je vais à la maison. Je suis très fatigué."]],"exos":[{"type":"select","q":"Yo ___ francés.","rep":"soy","opts":["soy","estoy"],"expl":"Nationalité = caractéristique permanente → **ser**. 1re pers. sing. : *soy*."},{"type":"select","q":"Hoy ___ muy cansado.","rep":"estoy","opts":["soy","estoy"],"expl":"État temporaire (fatigué) → **estar**. 1re pers. sing. : *estoy*."},{"type":"select","q":"Barcelona ___ en Cataluña.","rep":"está","opts":["es","está"],"expl":"Localisation géographique → **toujours estar**. 3e pers. sing. : *está*."},{"type":"select","q":"Mi madre ___ profesora.","rep":"es","opts":["es","está"],"expl":"Profession = identité durable → **ser**. 3e pers. sing. : *es*."},{"type":"trou","q":"Nosotros ___ (ir) al mercado.","rep":"vamos","expl":"IR irrégulier, « nosotros » : *vamos*. (Attention : pas *imos* ni *irmos*.)"},{"type":"select","q":"Mis amigos ___ muy simpáticos.","rep":"son","opts":["son","están"],"expl":"Caractère = permanent → **ser**, 3e pers. plur. : *son*."},{"type":"trad","q":"Traduis : « Je m'appelle Lucas et je suis français. »","rep":"Me llamo Lucas y soy francés","expl":"*Me llamo* = verbe pronominal *llamarse* (s'appeler). Nationalité → *soy francés* avec **ser**."},{"type":"ordre","q":"Remets dans l'ordre : [ casa / Voy / a ]","rep":"Voy a casa","expl":"Aller à la maison = *ir a casa*. Conjugué : *voy*. On dit toujours *a casa* (sans article)."}]},{"id":2,"titre":"Avoir, vouloir, pouvoir — tener, querer, poder","objectif":"Exprimer ce qu'on a, ce qu'on veut, ce qu'on peut faire.","lecon":["**TENER** (avoir) : tengo, tienes, tiene, tenemos, tenéis, tienen.","**QUERER** (vouloir/aimer) : quiero, quieres, quiere, queremos, queréis, quieren. → diphtongue e→ie sauf nosotros/vosotros.","**PODER** (pouvoir) : puedo, puedes, puede, podemos, podéis, pueden. → diphtongue o→ue sauf nosotros/vosotros.","Les **diphtongues** touchent toutes les personnes SAUF nosotros et vosotros.","**Tener + que + infinitif** = devoir : *Tengo que trabajar* = je dois travailler.","**Tener + nom** = avoir faim/soif/froid/chaud/sommeil : *tengo hambre, sed, frío, calor, sueño*."],"dialogue":[["— ¿Quieres comer mañana conmigo?","— Tu veux manger demain avec moi ?"],["— De acuerdo. Es una buena idea.","— D'accord. C'est une bonne idée."],["— ¿Tienes una cita?","— Tu as un rendez-vous ?"],["— No, tengo hambre y quiero comer.","— Non, j'ai faim et je veux manger."],["— ¿Puedes venir a las dos?","— Tu peux venir à deux heures ?"],["— Sí, tengo que terminar antes.","— Oui, je dois terminer avant."]],"exos":[{"type":"trou","q":"Yo ___ (tener) dos hermanos.","rep":"tengo","expl":"TENER, 1re pers. sing. : *tengo* (irrégulier, g rajouté — comme *hago, salgo, vengo*)."},{"type":"trou","q":"Ella ___ (tener) mucha hambre.","rep":"tiene","expl":"TENER, 3e pers. sing. : diphtongue e→ie → *tiene*. *Tener hambre* = avoir faim (pas *ser* ni *estar*)."},{"type":"trou","q":"Nosotros ___ (querer) un café.","rep":"queremos","expl":"QUERER, « nosotros » : **pas** de diphtongue → *queremos*. (La diphtongue saute nosotros/vosotros.)"},{"type":"trou","q":"¿___ (poder, tú) ayudarme?","rep":"puedes","expl":"PODER, 2e pers. sing. : o→ue → *puedes*. La question commence par ¿."},{"type":"select","q":"___ que estudiar más.","rep":"Tengo","opts":["Tengo","Quiero","Puedo"],"expl":"**tener que + infinitif** = devoir. *Tengo que estudiar* = je dois étudier."},{"type":"trad","q":"Traduis : « Je veux aller à la plage. »","rep":"Quiero ir a la playa","expl":"*quiero* (1re pers.) + infinitif *ir*. Deux verbes qui se suivent : le 2e reste à l'infinitif."},{"type":"ordre","q":"Remets : [ trabajar / que / Tengo / mañana ]","rep":"Tengo que trabajar mañana","expl":"**tener que + infinitif** = devoir : *tengo que trabajar*. *mañana* (demain) en fin de phrase."},{"type":"select","q":"Ellos ___ viajar a España este verano.","rep":"quieren","opts":["querer","quieren","queremos"],"expl":"QUERER, 3e pers. plur. : diphtongue e→ie → *quieren*."}]},{"id":3,"titre":"Le présent — verbes réguliers et faire","objectif":"Parler de tes habitudes, ton quotidien, ce que tu fais.","lecon":["3 groupes : **-AR** (hablar), **-ER** (comer), **-IR** (vivir).","**-AR** : -o, -as, -a, -amos, -áis, -an → *hablo, hablas, habla...*","**-ER** : -o, -es, -e, -emos, -éis, -en → *como, comes, come...*","**-IR** : -o, -es, -e, -imos, -ís, -en → *vivo, vives, vive...* (nosotros/vosotros diffèrent des -ER)","**HACER** (faire) : hago, haces, hace, hacemos, hacéis, hacen. (hago = irrégulier à yo)","**Réflexifs courants** : *levantarse* (se lever), *acostarse* (se coucher), *llamarse* (s'appeler)."],"dialogue":[["— ¿Qué haces los fines de semana?","— Qu'est-ce que tu fais les week-ends ?"],["— Hablo con mis amigos y comemos juntos.","— Je parle avec mes amis et nous mangeons ensemble."],["— ¿A qué hora te levantas?","— À quelle heure tu te lèves ?"],["— Me levanto a las siete. Y me acuesto tarde.","— Je me lève à sept heures. Et je me couche tard."],["— ¿Dónde vives?","— Où tu habites ?"],["— Vivo en Burdeos, trabajo en el centro.","— J'habite à Bordeaux, je travaille au centre."]],"exos":[{"type":"trou","q":"Yo ___ (hablar) español cada día.","rep":"hablo","expl":"Verbe en **-AR**, 1re pers. sing. : radical *habl-* + **-o** = *hablo*."},{"type":"trou","q":"Nosotros ___ (comer) a las dos.","rep":"comemos","expl":"Verbe en **-ER**, « nosotros » : radical *com-* + **-emos** = *comemos*."},{"type":"trou","q":"Ellos ___ (vivir) en Madrid.","rep":"viven","expl":"Verbe en **-IR**, 3e pers. plur. : *viv-* + **-en** = *viven* (même terminaison que -ER ici)."},{"type":"trou","q":"Yo ___ (hacer) deporte tres veces a la semana.","rep":"hago","expl":"HACER irrégulier à « yo » : *hag-* + **-o** = *hago*. (Le c devient g.)"},{"type":"trou","q":"¿Vosotros ___ (escribir) muchos correos?","rep":"escribís","expl":"Verbe en **-IR**, « vosotros » : *escrib-* + **-ís** = *escribís*. (Pas *-éis*, c'est -ER.)"},{"type":"trad","q":"Traduis : « Nous travaillons à Madrid. »","rep":"Trabajamos en Madrid","expl":"*trabajar* (-AR), « nosotros » : *trabaj-* + **-amos**. On dit *en Madrid* (pas *à*)."},{"type":"select","q":"Me ___ a las siete de la mañana.","rep":"levanto","opts":["levanto","levantas","levanta"],"expl":"*levantarse* est un verbe pronominal : *me levanto* (je me lève). Pronom *me* + verbe à la 1re pers."},{"type":"ordre","q":"Remets : [ en / Vivo / pequeño / un / piso ]","rep":"Vivo en un piso pequeño","expl":"L'adjectif (*pequeño*) se place **après** le nom en espagnol : *un piso pequeño*."}]},{"id":4,"titre":"L'heure et le quotidien","objectif":"Dire l'heure, parler de ta journée, tes habitudes.","lecon":["**L'heure** : *¿Qué hora es?* → *Son las tres* (il est 3h) / *Es la una* (il est 1h — singulier).","Fractions : *y cuarto* (+15), *y media* (+30), *menos cuarto* (-15).","**Salir** (sortir) : salgo, sales, sale, salimos, salís, salen. (salgo = irrégulier)","**Volver** (revenir) : vuelvo, vuelves, vuelve, volvemos, volvéis, vuelven. (o→ue)","**Dormir** : duermo, duermes, duerme, dormimos, dormís, duermen. (o→ue)","Les jours : *lunes, martes, miércoles, jueves, viernes, sábado, domingo*."],"dialogue":[["— ¿Qué hora es?","— Quelle heure est-il ?"],["— Son las diez y cuarto.","— Il est dix heures et quart."],["— ¿A qué hora sales del trabajo?","— À quelle heure tu sors du travail ?"],["— Salgo a las seis. Vuelvo a casa a las siete.","— Je sors à six heures. Je rentre à sept heures."],["— ¿Y cuándo duermes?","— Et quand tu dors ?"],["— Duermo ocho horas. Me acuesto a las once.","— Je dors huit heures. Je me couche à onze heures."]],"exos":[{"type":"select","q":"___ las tres y media.","rep":"Son","opts":["Es","Son"],"expl":"Pour l'heure, on utilise **son las** (pluriel) pour toutes les heures sauf une : *Son las tres y media*."},{"type":"trou","q":"___ la una menos cuarto.","rep":"Es","expl":"Pour 1h, c'est singulier : **es la una**. Pour toutes les autres heures → *son las*."},{"type":"trou","q":"Yo ___ (salir) del trabajo a las seis.","rep":"salgo","expl":"SALIR irrégulier à « yo » : *salg-* + **-o** = *salgo*. (Comme *tengo, vengo, hago*.)"},{"type":"trou","q":"Ella ___ (volver) a casa tarde.","rep":"vuelve","expl":"VOLVER, 3e pers. sing. : diphtongue o→ue → *vuelve*."},{"type":"trou","q":"Nosotros ___ (dormir) ocho horas.","rep":"dormimos","expl":"DORMIR, « nosotros » : **pas** de diphtongue → *dormimos* (o reste)."},{"type":"select","q":"El lunes ___ al médico.","rep":"voy","opts":["voy","vais","vas"],"expl":"Jour de la semaine sans préposition : *el lunes* = le lundi / lundi prochain. *voy* (IR, yo)."},{"type":"trad","q":"Traduis : « Il est sept heures et demie. »","rep":"Son las siete y media","expl":"*son las* + chiffre + *y media* (et demie)."},{"type":"ordre","q":"Remets : [ trabajo / al / voy / Mañana / temprano ]","rep":"Mañana voy al trabajo temprano","expl":"*mañana* (demain) en début. *al trabajo* = *a + el trabajo*. *temprano* (tôt) en fin."}]},{"id":5,"titre":"Goûts et préférences — gustar","objectif":"Dire ce que tu aimes, ce que tu n'aimes pas, exprimer tes préférences.","lecon":["**GUSTAR** fonctionne à l'envers : littéralement « plaire ». La chose aimée est le **sujet**.","Structure : **pronom indirect** (me/te/le/nos/os/les) + *gusta* (sing.) / *gustan* (plur.) + la chose.","*Me gusta el café.* (le café me plaît) / *Me gustan los libros.* (les livres me plaisent)","Avec un infinitif → toujours **gusta** : *Me gusta viajar.*","Renforcer : *A mí me gusta...* / Négatif : *No me gusta nada...*","**Encantar** (adorer) marche pareil : *Me encanta la música. Me encantan las tapas.*"],"dialogue":[["— ¿Te gusta el castillán?","— Tu aimes le castillan ?"],["— Sí, me gusta mucho. Me encanta la pronunciación.","— Oui, je l'aime beaucoup. J'adore la prononciation."],["— ¿Te gustan los deportes?","— Tu aimes les sports ?"],["— Me gusta nadar pero no me gusta el fútbol.","— J'aime nager mais je n'aime pas le football."],["— A mí también me gusta nadar.","— Moi aussi j'aime nager."],["— ¿Y la comida española?","— Et la cuisine espagnole ?"],["— Me encantan las tapas y la paella.","— J'adore les tapas et la paella."]],"exos":[{"type":"select","q":"Me ___ el chocolate.","rep":"gusta","opts":["gusta","gustan"],"expl":"*el chocolate* est **singulier** → *gusta*. C'est le chocolat qui « plaît » — il est le sujet du verbe."},{"type":"select","q":"Me ___ las películas españolas.","rep":"gustan","opts":["gusta","gustan"],"expl":"*las películas* est **pluriel** → *gustan*. Le verbe s'accorde avec la chose aimée."},{"type":"select","q":"Me ___ viajar por Europa.","rep":"gusta","opts":["gusta","gustan"],"expl":"Devant un **infinitif** (viajar), toujours *gusta* au singulier."},{"type":"trou","q":"A nosotros ___ ___ (gustar) la playa.","rep":"nos gusta","expl":"Pour « nous » : pronom **nos** + *gusta* (la playa = singulier) → *nos gusta*."},{"type":"trad","q":"Traduis : « Je n'aime pas les légumes. »","rep":"No me gustan las verduras","expl":"Négation **no** devant *me* + *gustan* (las verduras = pluriel)."},{"type":"select","q":"— Me gusta el café. — A mí ___.","rep":"también","opts":["también","tampoco"],"expl":"**también** (aussi) pour approuver après phrase **positive**. *tampoco* = non plus (après négation)."},{"type":"select","q":"— No me gusta el ruido. — A mí ___.","rep":"tampoco","opts":["también","tampoco"],"expl":"**tampoco** (non plus) après une phrase **négative**."},{"type":"ordre","q":"Remets : [ encanta / Me / música / la ]","rep":"Me encanta la música","expl":"*encantar* marche comme *gustar* : *me encanta* + la chose (singulier)."}]},{"id":6,"titre":"Le passé composé — pretérito perfecto","objectif":"Raconter ce que tu as fait aujourd'hui ou récemment.","lecon":["Structure : **haber** (présent) + **participe passé**. Passé récent ou lié au présent.","haber : *he, has, ha, hemos, habéis, han*.","Participes réguliers : **-AR → -ado** (*hablado*) / **-ER/-IR → -ido** (*comido, vivido*).","Participes **irréguliers** : hacer→**hecho**, ver→**visto**, escribir→**escrito**, volver→**vuelto**, decir→**dicho**, abrir→**abierto**, poner→**puesto**, romper→**roto**.","Mots déclencheurs : *hoy, esta mañana, este año, ya, todavía no, nunca, alguna vez*.","Le participe est **invariable** : *ella ha comido* (pas *comida*), même pour une femme."],"dialogue":[["— ¿Has comido ya?","— Tu as déjà mangé ?"],["— No, todavía no he comido.","— Non, je n'ai pas encore mangé."],["— Hoy he hecho mucho deporte.","— Aujourd'hui j'ai fait beaucoup de sport."],["— ¿Has visto esa película?","— Tu as vu ce film ?"],["— Sí, la he visto esta semana. Es buenísima.","— Oui, je l'ai vu cette semaine. Elle est excellente."],["— Este año hemos viajado a España.","— Cette année nous avons voyagé en Espagne."]],"exos":[{"type":"trou","q":"Hoy yo ___ ___ (comer) paella.","rep":"he comido","expl":"*he* (haber, yo) + *comido* (-ER → **-ido**). → *he comido*."},{"type":"trou","q":"Esta mañana ella ___ ___ (hacer) deporte.","rep":"ha hecho","expl":"*ha* + participe **irrégulier** de hacer = **hecho** (pas *hacido* !). → *ha hecho*."},{"type":"trou","q":"¿___ ___ (ver, vosotros) la película?","rep":"Habéis visto","expl":"*habéis* + participe irrégulier de ver = **visto**. → *Habéis visto*."},{"type":"trou","q":"Todavía no ___ ___ (llegar, ellos).","rep":"han llegado","expl":"*han* (ellos) + *llegado* (-AR → **-ado**). *todavía no* = pas encore."},{"type":"trou","q":"Yo ___ ___ (escribir) tres correos hoy.","rep":"he escrito","expl":"Participe irrégulier de *escribir* = **escrito**. → *he escrito*."},{"type":"select","q":"Este año nosotros ___ mucho.","rep":"hemos viajado","opts":["hemos viajado","viajamos","viajábamos"],"expl":"*este año* (période non terminée) → **passé composé** : *hemos viajado*."},{"type":"trad","q":"Traduis : « As-tu déjà mangé ? » (tú)","rep":"¿Ya has comido?","expl":"*ya* (déjà) + *has* (2e pers.) + *comido*. Question : ¿...?"},{"type":"ordre","q":"Remets : [ abierto / La tienda / ha / no ]","rep":"La tienda no ha abierto","expl":"Négation **no** avant *haber* : *no ha* + participe irrégulier **abierto** (abrir). "}]},{"id":7,"titre":"Le prétérit — pretérito indefinido","objectif":"Raconter des événements passés et datés (hier, l'an dernier...).","lecon":["Action passée **terminée et datée**. Différent du passé composé (récent/non daté).","**-AR** : -é, -aste, -ó, -amos, -asteis, -aron → *hablé, hablaste, habló, hablamos...*","**-ER/-IR** : -í, -iste, -ió, -imos, -isteis, -ieron → *comí, comiste, comió...*","Irréguliers fréquents — **ser/ir** (mêmes formes !) : *fui, fuiste, fue, fuimos, fuisteis, fueron*.","**estar** : *estuve, estuviste, estuvo...* / **tener** : *tuve...* / **hacer** : *hice, hiciste, hizo...*","**venir** : *vine...* / **decir** : *dije...* / **poder** : *pude...* / **saber** : *supe...*","Mots déclencheurs : *ayer, anoche, el año pasado, la semana pasada, en 2020, hace un mes*."],"dialogue":[["— ¿Qué hiciste ayer?","— Qu'est-ce que tu as fait hier ?"],["— Fui al mercado y compré fruta.","— Je suis allé au marché et j'ai acheté des fruits."],["— ¿Dónde estuviste el verano pasado?","— Où étais-tu l'été dernier ?"],["— Estuve en España, en la costa.","— J'étais en Espagne, sur la côte."],["— ¿Cuándo llegaste?","— Quand es-tu arrivé ?"],["— Llegué el martes por la tarde.","— Je suis arrivé mardi après-midi."]],"exos":[{"type":"trou","q":"Ayer yo ___ (hablar) con mi jefe.","rep":"hablé","expl":"-AR, 1re pers. au prétérit : radical + **-é** = *hablé*. (Accent sur le é !)"},{"type":"trou","q":"Ella ___ (comer) en un restaurante anoche.","rep":"comió","expl":"-ER, 3e pers. sing. : radical + **-ió** = *comió*. (Accent sur le ó !)"},{"type":"trou","q":"El año pasado nosotros ___ (ir) a México.","rep":"fuimos","expl":"IR/SER au prétérit sont **identiques** : *fui, fuiste, fue, fuimos...*. « nosotros » = *fuimos*."},{"type":"trou","q":"¿Dónde ___ (estar, tú) ayer?","rep":"estuviste","expl":"ESTAR irrégulier : radical *estuv-* + *-iste*. 2e pers. = **estuviste**."},{"type":"trou","q":"Él ___ (hacer) la cena ayer.","rep":"hizo","expl":"HACER au prétérit, 3e pers. : **hizo** (le c→z devant o pour garder le son [s])."},{"type":"select","q":"En 2019 yo ___ en Barcelona.","rep":"viví","opts":["viví","he vivido","vivo"],"expl":"Date précise et révolue (en 2019) → **prétérit** : *viví*. Le passé composé serait pour une période liée au présent."},{"type":"trad","q":"Traduis : « Hier nous sommes allés au cinéma. »","rep":"Ayer fuimos al cine","expl":"IR au prétérit = *fuimos*. *a + el = al* : *al cine*."},{"type":"ordre","q":"Remets : [ pasado / Llegué / el / martes ]","rep":"Llegué el martes pasado","expl":"*el martes pasado* = mardi dernier. *Llegué* = je suis arrivé (prétérit de *llegar*)."}]},{"id":8,"titre":"L'imparfait — pretérito imperfecto","objectif":"Décrire des situations passées, des habitudes dans le passé.","lecon":["L'imparfait décrit une situation, un état ou une **habitude passée** (pas une action datée).","**-AR** : -aba, -abas, -aba, -ábamos, -abais, -aban → *hablaba, hablabas...*","**-ER/-IR** : -ía, -ías, -ía, -íamos, -íais, -ían → *comía, comías...*","Seulement **3 irréguliers** : *ser* (era, eras...) / *ir* (iba, ibas...) / *ver* (veía, veías...)","**Quand utiliser ?** Description du décor, état physique/émotionnel, habitude → imparfait. Action précise → prétérit.","Souvent avec : *antes, siempre, todos los días, de niño/a, cuando era pequeño/a*."],"dialogue":[["— ¿Qué hacías cuando eras pequeño?","— Qu'est-ce que tu faisais quand tu étais petit ?"],["— Vivía en el campo y jugaba mucho fuera.","— J'habitais à la campagne et je jouais beaucoup dehors."],["— ¿Ibas mucho al cine?","— Tu allais souvent au cinéma ?"],["— Sí, antes iba todos los fines de semana.","— Oui, avant j'y allais tous les week-ends."],["— Cuando era joven, hablaba muy bien el inglés.","— Quand j'étais jeune, je parlais très bien l'anglais."]],"exos":[{"type":"trou","q":"De niño, yo ___ (vivir) en el campo.","rep":"vivía","expl":"-IR, imparfait, 1re pers. sing. : radical + **-ía** = *vivía*. Situation passée habituelle."},{"type":"trou","q":"Antes ella ___ (ir) al cine cada semana.","rep":"iba","expl":"IR irrégulier à l'imparfait : *iba, ibas, iba, íbamos...* 3e pers. sing. = **iba**."},{"type":"trou","q":"Nosotros ___ (hablar) francés en casa.","rep":"hablábamos","expl":"-AR, imparfait, « nosotros » : *habl-* + **-ábamos** = *hablábamos*. (Accent sur le á !)"},{"type":"select","q":"Cuando ___ pequeño, jugaba mucho.","rep":"era","opts":["era","fui","estaba"],"expl":"État passé durable (être petit) → **imparfait** de *ser* : *era*. (Pas *fui* = prétérit ponctuel.)"},{"type":"select","q":"Ayer ___ (llover) cuando salí.","rep":"llovía","opts":["llovió","llovía","llueve"],"expl":"Description de la météo = décor/contexte → **imparfait** : *llovía*. (L'action « sortir » est au prétérit.)"},{"type":"trad","q":"Traduis : « Avant, je travaillais à Paris. »","rep":"Antes trabajaba en París","expl":"*Antes* (avant) + imparfait *trabajaba*. En espagnol : *en París* (pas *à Paris*)."},{"type":"ordre","q":"Remets : [ joven / inglés / era / Cuando / hablaba ]","rep":"Cuando era joven hablaba inglés","expl":"*Cuando* + imparfait (*era*) pour le contexte + imparfait (*hablaba*) pour l'habitude."},{"type":"trou","q":"Ellos siempre ___ (comer) juntos.","rep":"comían","expl":"-ER, imparfait, 3e pers. plur. : *com-* + **-ían** = *comían*. *siempre* = toujours → habitude."}]},{"id":9,"titre":"Le futur et le conditionnel","objectif":"Parler de tes projets, faire des suppositions et des propositions polies.","lecon":["**Futur proche** (le plus courant) : *ir + a + infinitif*. → *Voy a viajar.* (Je vais voyager.)","**Futur simple** : radical (infinitif) + -é, -ás, -á, -emos, -éis, -án. Même terminaisons pour les 3 groupes !","Irréguliers fréquents : *tener→tendr-, poder→podr-, hacer→har-, decir→dir-, venir→vendr-, salir→saldr-*.","**Conditionnel** : même radical irrégulier + -ía, -ías, -ía, -íamos, -íais, -ían.","*Querría* (je voudrais) / *podría* (je pourrais) / *me gustaría* (j'aimerais) = **politesse** en voyage.","Différence : futur = certitude / conditionnel = hypothèse ou politesse."],"dialogue":[["— ¿Qué harás este fin de semana?","— Qu'est-ce que tu feras ce week-end ?"],["— Iré a la playa si hace buen tiempo.","— J'irai à la plage s'il fait beau."],["— ¿Podrías ayudarme con esto?","— Tu pourrais m'aider avec ça ?"],["— Por supuesto. ¿Qué necesitas?","— Bien sûr. De quoi as-tu besoin ?"],["— Me gustaría reservar una habitación.","— J'aimerais réserver une chambre."],["— Tendré que pensarlo.","— Je devrai y réfléchir."]],"exos":[{"type":"trou","q":"Mañana yo ___ ___ (ir a estudiar) español.","rep":"voy a estudiar","expl":"Futur proche = *voy* + **a** + infinitif. N'oublie pas le **a** entre les deux."},{"type":"trou","q":"El año que viene ella ___ (venir) a Francia.","rep":"vendrá","expl":"Futur simple irrégulier : *venir → vendr-* + **-á** (3e pers. sing.) = *vendrá*."},{"type":"trou","q":"¿___ (poder, tú) venir mañana?","rep":"podrás","expl":"Futur irrégulier : *poder → podr-* + **-ás** (2e pers. sing.) = *podrás*."},{"type":"select","q":"Me ___ visitar España algún día.","rep":"gustaría","opts":["gusta","gustará","gustaría"],"expl":"**Conditionnel** de *gustar* = *gustaría* (j'aimerais). Plus poli que le présent ou le futur."},{"type":"trou","q":"Nosotros ___ (hacer) una fiesta el sábado.","rep":"haremos","expl":"Futur irrégulier : *hacer → har-* + **-emos** (nosotros) = *haremos*."},{"type":"select","q":"Por favor, ¿___ indicarme dónde está el hotel?","rep":"podría","opts":["puede","podrá","podría"],"expl":"**Conditionnel** *podría* = « pourriez-vous » — formule de politesse en voyage. Plus poli que *puede*."},{"type":"trad","q":"Traduis : « J'aimerais réserver une table pour deux. »","rep":"Me gustaría reservar una mesa para dos","expl":"*Me gustaría* (conditionnel de gustar) + *reservar* + *una mesa para dos*."},{"type":"ordre","q":"Remets : [ buen / si / Iré / tiempo / hace ]","rep":"Iré si hace buen tiempo","expl":"Phrase conditionnelle : résultat (*iré*) + *si* + condition (*hace buen tiempo*). Futur + présent."}]},{"id":10,"titre":"Por vs Para — les prépositions clés","objectif":"Maîtriser por et para, les deux prépositions les plus pièges de l'espagnol.","lecon":["**PARA** = but/objectif, destination, destinataire, délai, opinion personnelle.","**POR** = cause/motif, échange, durée, moyen, lieu traversé, « à travers ».","Mémo : *para* regarde vers l'avenir/le but. *por* explique le passé/la cause.","*Estudio español **para** trabajar en España.* (but) ← para","*Gracias **por** tu ayuda.* (cause/motif) ← por","*Este regalo es **para** ti.* (destinataire) ← para","*Lo compré **por** veinte euros.* (échange) ← por","*Hablar **por** teléfono.* (moyen de communication) ← por"],"dialogue":[["— ¿Para qué estudias español?","— Pourquoi (dans quel but) étudies-tu l'espagnol ?"],["— Para hablar con la gente cuando viaje.","— Pour parler avec les gens quand je voyage."],["— ¿Por qué te gusta España?","— Pourquoi aimes-tu l'Espagne ?"],["— Por el clima, la comida y la gente.","— Pour le climat, la cuisine et les gens."],["— Este libro es para ti.","— Ce livre est pour toi."],["— Gracias por el regalo.","— Merci pour le cadeau."],["— Lo encontré por Internet.","— Je l'ai trouvé sur (par) Internet."]],"exos":[{"type":"select","q":"Estudio español ___ trabajar en España.","rep":"para","opts":["por","para"],"expl":"**But/objectif** (afin de travailler) → **para** + infinitif."},{"type":"select","q":"Gracias ___ tu ayuda.","rep":"por","opts":["por","para"],"expl":"**Cause/motif** (merci à cause de) → **por**. *Gracias por* est une formule figée."},{"type":"select","q":"Este regalo es ___ ti.","rep":"para","opts":["por","para"],"expl":"**Destinataire** (pour toi) → **para**. *para ti* = pour toi."},{"type":"select","q":"Lo compré ___ diez euros.","rep":"por","opts":["por","para"],"expl":"**Échange** (contre, en échange de) → **por**."},{"type":"select","q":"Habló ___ teléfono durante una hora.","rep":"por","opts":["por","para"],"expl":"**Moyen de communication** → **por** : *por teléfono, por correo, por Internet*."},{"type":"select","q":"El tren sale ___ Madrid a las ocho.","rep":"para","opts":["por","para"],"expl":"**Destination** (en direction de) → **para** : *salir para* = partir vers."},{"type":"trad","q":"Traduis : « Je travaille pour vivre, pas le contraire. »","rep":"Trabajo para vivir, no al contrario","expl":"**But** → *para vivir*. *al contrario* = au contraire."},{"type":"select","q":"Caminamos ___ el parque.","rep":"por","opts":["por","para"],"expl":"**À travers / le long de** → **por** : *caminar por el parque* = se promener dans le parc."}]},{"id":11,"titre":"Le subjonctif présent — bases","objectif":"Exprimer un souhait, un doute, une émotion — niveau avancé A2/B1.","lecon":["Le subjonctif exprime la **subjectivité** : souhaits, doutes, émotions, nécessité.","Formation : radical de la 1re pers. du présent + terminaisons inversées.","**-AR** prend les terminaisons de **-ER** : -e, -es, -e, -emos, -éis, -en (*hable, hables...*)","**-ER/-IR** prend les terminaisons de **-AR** : -a, -as, -a, -amos, -áis, -an (*coma, comas...*)","Structures déclencheuses : *quiero que + subj., espero que + subj., es importante que + subj.*","**Attention** : le subjonctif suit une conjonction **que** et un changement de sujet."],"dialogue":[["— Espero que llegues a tiempo.","— J'espère que tu arrives à l'heure."],["— Quiero que vengas conmigo.","— Je veux que tu viennes avec moi."],["— Es importante que hables con él.","— Il est important que tu lui parles."],["— No creo que pueda terminar hoy.","— Je ne crois pas que je puisse terminer aujourd'hui."],["— Ojalá haga buen tiempo.","— Pourvu qu'il fasse beau."]],"exos":[{"type":"select","q":"Espero que ___ (tú, venir) mañana.","rep":"vengas","opts":["vienes","vengas","vendrás"],"expl":"Après *espero que* → **subjonctif**. VENIR irrégulier : radical *veng-* + *-as* = *vengas*."},{"type":"select","q":"Quiero que ella ___ (hablar) con el médico.","rep":"hable","opts":["habla","hablará","hable"],"expl":"Après *quiero que* + changement de sujet → **subjonctif** : *habl-* + *-e* = *hable*."},{"type":"select","q":"Es importante que ___ (nosotros, comer) bien.","rep":"comamos","opts":["comemos","comamos","comeremos"],"expl":"Après *es importante que* → **subjonctif** de -ER : *com-* + *-amos* = *comamos*."},{"type":"trou","q":"No creo que él ___ (poder) venir.","rep":"pueda","expl":"*No creo que* exprime le doute → subjonctif. PODER irrégulier : *pued-* + *-a* = *pueda*."},{"type":"select","q":"¡Ojalá ___ (hacer) sol mañana!","rep":"haga","opts":["hace","hará","haga"],"expl":"*Ojalá* = pourvu que / j'espère que → **toujours subjonctif**. HACER : *hag-* + *-a* = *haga*."},{"type":"trad","q":"Traduis : « J'espère qu'il fait beau. »","rep":"Espero que haga buen tiempo","expl":"*Espero que* + subjonctif de *hacer* = *haga*. *buen tiempo* = beau temps."},{"type":"ordre","q":"Remets : [ vengas / que / pronto / Espero ]","rep":"Espero que vengas pronto","expl":"*Espero que* + subjonctif (*vengas*, 2e pers.) + *pronto* (bientôt)."},{"type":"select","q":"Busco un apartamento que ___ barato.","rep":"sea","opts":["es","será","sea"],"expl":"Recherche d'un objet indéfini (qui n'existe pas encore) → **subjonctif** : *sea* (subjonctif de *ser*)."}]},{"id":12,"titre":"Se débrouiller en voyage — situations réelles","objectif":"Gérer toutes les situations de voyage : hôtel, restaurant, transports, urgences.","lecon":["**Politesse en voyage** : *Querría...* / *¿Podría...?* / *Me gustaría...* = je voudrais / pourriez-vous.","**À l'hôtel** : *Quería reservar una habitación doble para dos noches.*","**Au restaurant** : *¿Tiene una mesa para dos? / La carta, por favor. / La cuenta, por favor.*","**Transports** : *¿A qué hora sale el tren para...? / Un billete de ida y vuelta.*","**Urgences** : *¡Llame a la policía! / Necesito un médico. / Me han robado.*","**Ne pas comprendre** : *¿Puede repetir más despacio? / No entiendo. / ¿Cómo se dice...?*"],"dialogue":[["— Querría una habitación doble para esta noche.","— Je voudrais une chambre double pour cette nuit."],["— ¿Con baño o con ducha?","— Avec bain ou avec douche ?"],["— Con ducha, por favor. ¿Cuánto es?","— Avec douche, s'il vous plaît. C'est combien ?"],["— Son noventa euros, el desayuno incluido.","— C'est quatre-vingt-dix euros, petit-déjeuner inclus."],["— Perfecto. ¿A qué hora es el desayuno?","— Parfait. À quelle heure est le petit-déjeuner ?"],["— De ocho a diez y media.","— De huit heures à dix heures et demie."]],"exos":[{"type":"trou","q":"Mañana yo ___ ___ (ir a estudiar) español.","rep":"voy a estudiar","expl":"Futur proche = *voy* + **a** + infinitif *estudiar*. Le **a** est obligatoire."},{"type":"select","q":"___ reservar una mesa para dos personas.","rep":"Querría","opts":["Quiero","Querría","Quiera"],"expl":"**Conditionnel** *querría* = formule de politesse (je voudrais). Plus poli que *quiero* (je veux)."},{"type":"select","q":"Gracias ___ tu ayuda.","rep":"por","opts":["por","para"],"expl":"**Cause** → **por**. *Gracias por...* est une formule fixe."},{"type":"select","q":"Este menú es ___ turistas.","rep":"para","opts":["por","para"],"expl":"**Destinataire** → **para** : ce menu est destiné aux touristes."},{"type":"trad","q":"Traduis : « Pouvez-vous répéter plus lentement ? »","rep":"¿Puede repetir más despacio?","expl":"*¿Puede...?* = formule polie (usted). *repetir* + *más despacio* (plus lentement)."},{"type":"trad","q":"Traduis : « L'addition, s'il vous plaît. »","rep":"La cuenta, por favor","expl":"*La cuenta* = l'addition (au restaurant). *por favor* = s'il vous plaît. Expression indispensable !"},{"type":"select","q":"¿A qué hora ___ el tren para Madrid?","rep":"sale","opts":["parte","sale","va"],"expl":"Le train *sale* (part) — verbe *salir*. *sale para* = part en direction de."},{"type":"ordre","q":"Remets : [ una / ida / vuelta / billete / y / de ]","rep":"un billete de ida y vuelta","expl":"*un billete de ida y vuelta* = un billet aller-retour. Formule figée à mémoriser."}]}];
+const VOCAB=[["Hola","Bonjour / Salut","Salutations"],["Buenos días","Bonjour (matin)","Salutations"],["Buenas tardes","Bon après-midi","Salutations"],["Buenas noches","Bonne nuit","Salutations"],["¿Qué tal?","Comment ça va ?","Salutations"],["Muy bien","Très bien","Salutations"],["¿Y tú?","Et toi ?","Salutations"],["Adiós","Au revoir","Salutations"],["Hasta luego","À bientôt","Salutations"],["Hasta mañana","À demain","Salutations"],["yo","je / moi","Pronoms"],["tú","tu / toi","Pronoms"],["él / ella","il / elle","Pronoms"],["nosotros","nous","Pronoms"],["vosotros","vous (inform. Espagne)","Pronoms"],["ellos / ellas","ils / elles","Pronoms"],["usted","vous (formel)","Pronoms"],["ir","aller","Verbes"],["ser","être (permanent)","Verbes"],["estar","être (état/lieu)","Verbes"],["tener","avoir","Verbes"],["querer","vouloir/aimer","Verbes"],["poder","pouvoir","Verbes"],["hacer","faire","Verbes"],["decir","dire","Verbes"],["saber","savoir","Verbes"],["conocer","connaître","Verbes"],["ver","voir","Verbes"],["dar","donner","Verbes"],["llevar","porter/apporter","Verbes"],["hablar","parler","Verbes"],["comer","manger","Verbes"],["beber","boire","Verbes"],["vivir","habiter/vivre","Verbes"],["trabajar","travailler","Verbes"],["estudiar","étudier","Verbes"],["escuchar","écouter","Verbes"],["leer","lire","Verbes"],["escribir","écrire","Verbes"],["llamar","appeler","Verbes"],["comprar","acheter","Verbes"],["vender","vendre","Verbes"],["pagar","payer","Verbes"],["costar","coûter","Verbes"],["abrir","ouvrir","Verbes"],["cerrar","fermer","Verbes"],["salir","sortir/partir","Verbes"],["llegar","arriver","Verbes"],["empezar","commencer","Verbes"],["terminar","finir","Verbes"],["dormir","dormir","Verbes"],["levantarse","se lever","Verbes"],["acostarse","se coucher","Verbes"],["ducharse","se doucher","Verbes"],["gustar","plaire/aimer","Verbes"],["necesitar","avoir besoin de","Verbes"],["pensar","penser/croire","Verbes"],["creer","croire","Verbes"],["esperar","attendre/espérer","Verbes"],["buscar","chercher","Verbes"],["encontrar","trouver","Verbes"],["poner","mettre/poser","Verbes"],["tomar","prendre","Verbes"],["volver","revenir","Verbes"],["quedarse","rester","Verbes"],["fumar","fumer","Verbes"],["jugar","jouer","Verbes"],["correr","courir","Verbes"],["bailar","danser","Verbes"],["cocinar","cuisiner","Verbes"],["viajar","voyager","Verbes"],["reservar","réserver","Verbes"],["madrugar","se lever tôt","Verbes"],["el pan","le pain","Nourriture"],["el queso","le fromage","Nourriture"],["el jamón","le jambon","Nourriture"],["el pollo","le poulet","Nourriture"],["la carne","la viande","Nourriture"],["el pescado","le poisson","Nourriture"],["el huevo","l'œuf","Nourriture"],["la fruta","les fruits","Nourriture"],["la verdura","les légumes","Nourriture"],["la ensalada","la salade","Nourriture"],["la sopa","la soupe","Nourriture"],["el arroz","le riz","Nourriture"],["la pasta","les pâtes","Nourriture"],["la patata","la pomme de terre","Nourriture"],["el tomate","la tomate","Nourriture"],["la manzana","la pomme","Nourriture"],["el plátano","la banane","Nourriture"],["la naranja","l'orange","Nourriture"],["el aceite","l'huile (d'olive)","Nourriture"],["la sal","le sel","Nourriture"],["el azúcar","le sucre","Nourriture"],["el agua","l'eau","Boissons"],["el café","le café","Boissons"],["el té","le thé","Boissons"],["la leche","le lait","Boissons"],["el zumo de naranja","le jus d'orange","Boissons"],["la cerveza","la bière","Boissons"],["el vino tinto","le vin rouge","Boissons"],["el vino blanco","le vin blanc","Boissons"],["el agua mineral","l'eau minérale","Boissons"],["el postre","le dessert","Restaurant"],["la cuenta","l'addition","Restaurant"],["la carta","la carte","Restaurant"],["el menú","le menu","Restaurant"],["el camarero","le serveur","Restaurant"],["la mesa","la table","Restaurant"],["el primer plato","l'entrée","Restaurant"],["el segundo plato","le plat principal","Restaurant"],["¡Que aproveche!","Bon appétit !","Restaurant"],["la propina","le pourboire","Restaurant"],["la tienda","le magasin","Shopping"],["el mercado","le marché","Shopping"],["¿Cuánto cuesta?","Combien ça coûte ?","Shopping"],["caro","cher","Shopping"],["barato","bon marché","Shopping"],["la talla","la taille (vêtement)","Shopping"],["la tarjeta de crédito","la carte de crédit","Shopping"],["el dinero","l'argent","Shopping"],["el cambio","la monnaie/le change","Shopping"],["el probador","la cabine d'essayage","Shopping"],["la camisa","la chemise","Vêtements"],["los pantalones","le pantalon","Vêtements"],["el vestido","la robe","Vêtements"],["los zapatos","les chaussures","Vêtements"],["la chaqueta","la veste","Vêtements"],["el abrigo","le manteau","Vêtements"],["el tren","le train","Transports"],["el avión","l'avion","Transports"],["el autobús","le bus","Transports"],["el metro","le métro","Transports"],["la estación","la gare/la station","Transports"],["el aeropuerto","l'aéroport","Transports"],["el billete","le billet","Transports"],["de ida y vuelta","aller-retour","Transports"],["de ida","aller simple","Transports"],["el andén","le quai","Transports"],["el retraso","le retard","Transports"],["la maleta","la valise","Transports"],["el equipaje","les bagages","Transports"],["el asiento","le siège","Transports"],["el pasaporte","le passeport","Transports"],["la aduana","la douane","Transports"],["la gasolinera","la station-service","Transports"],["perdido","perdu","Transports"],["el hotel","l'hôtel","Hébergement"],["una habitación","une chambre","Hébergement"],["doble","double","Hébergement"],["individual","simple (chambre)","Hébergement"],["con baño","avec salle de bain","Hébergement"],["la recepción","la réception","Hébergement"],["el desayuno","le petit-déjeuner","Hébergement"],["la pensión completa","pension complète","Hébergement"],["media pensión","demi-pension","Hébergement"],["el precio","le prix","Hébergement"],["por noche","par nuit","Hébergement"],["incluido","inclus","Hébergement"],["el médico","le médecin","Santé"],["la farmacia","la pharmacie","Santé"],["el hospital","l'hôpital","Santé"],["me duele","j'ai mal à","Santé"],["la fiebre","la fièvre","Santé"],["el resfriado","le rhume","Santé"],["la tos","la toux","Santé"],["el dolor","la douleur","Santé"],["el medicamento","le médicament","Santé"],["la receta","l'ordonnance","Santé"],["enfermo","malade","Santé"],["mejor","mieux","Santé"],["la cabeza","la tête","Corps"],["el estómago","l'estomac","Corps"],["la espalda","le dos","Corps"],["la garganta","la gorge","Corps"],["los ojos","les yeux","Corps"],["la nariz","le nez","Corps"],["la boca","la bouche","Corps"],["la mano","la main","Corps"],["el pie","le pied","Corps"],["la rodilla","le genou","Corps"],["el brazo","le bras","Corps"],["la pierna","la jambe","Corps"],["la familia","la famille","Famille"],["el padre","le père","Famille"],["la madre","la mère","Famille"],["el hermano","le frère","Famille"],["la hermana","la sœur","Famille"],["el hijo","le fils","Famille"],["la hija","la fille","Famille"],["el abuelo","le grand-père","Famille"],["la abuela","la grand-mère","Famille"],["el marido","le mari","Famille"],["la mujer","la femme/l'épouse","Famille"],["el novio","le petit ami","Famille"],["la novia","la petite amie","Famille"],["mayor","aîné/plus grand","Famille"],["menor","cadet/plus jeune","Famille"],["el tío","l'oncle","Famille"],["la tía","la tante","Famille"],["el primo/la prima","le cousin/la cousine","Famille"],["alto","grand (taille)","Description"],["bajo","petit (taille)","Description"],["gordo","gros","Description"],["delgado","mince","Description"],["guapo","beau","Description"],["feo","laid","Description"],["rubio","blond","Description"],["moreno","brun","Description"],["simpático","sympathique","Description"],["antipático","antipathique","Description"],["amable","aimable","Description"],["tímido","timide","Description"],["serio","sérieux","Description"],["divertido","amusant","Description"],["el color","la couleur","Couleurs"],["rojo","rouge","Couleurs"],["azul","bleu","Couleurs"],["verde","vert","Couleurs"],["amarillo","jaune","Couleurs"],["blanco","blanc","Couleurs"],["negro","noir","Couleurs"],["gris","gris","Couleurs"],["marrón","marron","Couleurs"],["naranja","orange","Couleurs"],["rosa","rose","Couleurs"],["morado","violet","Couleurs"],["hace sol","il fait soleil","Météo"],["hace calor","il fait chaud","Météo"],["hace frío","il fait froid","Météo"],["llueve","il pleut","Météo"],["nieva","il neige","Météo"],["hace viento","il fait du vent","Météo"],["está nublado","c'est nuageux","Météo"],["la lluvia","la pluie","Météo"],["la nieve","la neige","Météo"],["el sol","le soleil","Météo"],["la primavera","le printemps","Saisons"],["el verano","l'été","Saisons"],["el otoño","l'automne","Saisons"],["el invierno","l'hiver","Saisons"],["el trabajo","le travail","Travail"],["la empresa","l'entreprise","Travail"],["la oficina","le bureau","Travail"],["el jefe","le chef/patron","Travail"],["el empleado","l'employé","Travail"],["el compañero","le collègue","Travail"],["la reunión","la réunion","Travail"],["el sueldo","le salaire","Travail"],["el horario","l'horaire","Travail"],["el contrato","le contrat","Travail"],["las vacaciones","les vacances","Travail"],["el correo","le courrier/e-mail","Travail"],["firmar","signer","Travail"],["el ordenador","l'ordinateur","Travail"],["a tiempo completo","à temps plein","Travail"],["a tiempo parcial","à temps partiel","Travail"],["el deporte","le sport","Loisirs"],["el fútbol","le football","Loisirs"],["la natación","la natation","Loisirs"],["el tenis","le tennis","Loisirs"],["el cine","le cinéma","Loisirs"],["la película","le film","Loisirs"],["el teatro","le théâtre","Loisirs"],["el concierto","le concert","Loisirs"],["la música","la musique","Loisirs"],["el libro","le livre","Loisirs"],["la televisión","la télévision","Loisirs"],["el fin de semana","le week-end","Loisirs"],["el paseo","la promenade","Loisirs"],["la bicicleta","le vélo","Loisirs"],["la ciudad","la ville","Ville"],["el barrio","le quartier","Ville"],["la calle","la rue","Ville"],["la plaza","la place","Ville"],["el banco","la banque","Ville"],["el correos","la poste","Ville"],["el ayuntamiento","la mairie","Ville"],["la comisaría","le commissariat","Ville"],["el supermercado","le supermarché","Ville"],["la parada","l'arrêt de bus","Ville"],["el semáforo","le feu de circulation","Ville"],["el mapa","la carte/le plan","Ville"],["a la derecha","à droite","Ville"],["a la izquierda","à gauche","Ville"],["todo recto","tout droit","Ville"],["cruzar","traverser","Ville"],["hoy","aujourd'hui","Temps"],["mañana","demain","Temps"],["ayer","hier","Temps"],["anoche","hier soir","Temps"],["la semana","la semaine","Temps"],["el mes","le mois","Temps"],["el año","l'année","Temps"],["ahora","maintenant","Temps"],["pronto","bientôt","Temps"],["tarde","tard/en retard","Temps"],["temprano","tôt","Temps"],["a veces","parfois","Temps"],["siempre","toujours","Temps"],["nunca","jamais","Temps"],["a menudo","souvent","Temps"],["el año pasado","l'année dernière","Temps"],["la semana pasada","la semaine dernière","Temps"],["hace un mes","il y a un mois","Temps"],["el año que viene","l'année prochaine","Temps"],["dentro de poco","dans peu de temps","Temps"],["primero","d'abord","Mots-outils"],["luego","ensuite","Mots-outils"],["después","après","Mots-outils"],["al final","finalement","Mots-outils"],["también","aussi","Mots-outils"],["tampoco","non plus","Mots-outils"],["ya","déjà/maintenant","Mots-outils"],["todavía","encore/toujours","Mots-outils"],["más","plus","Mots-outils"],["menos","moins","Mots-outils"],["muy","très","Mots-outils"],["mucho","beaucoup","Mots-outils"],["poco","peu","Mots-outils"],["bastante","assez","Mots-outils"],["demasiado","trop","Mots-outils"],["sin embargo","cependant","Mots-outils"],["aunque","bien que/même si","Mots-outils"],["porque","parce que","Mots-outils"],["por eso","c'est pourquoi","Mots-outils"],["cuando","quand","Mots-outils"],["mientras","pendant que","Mots-outils"],["de repente","soudain","Mots-outils"],["creo que","je crois que","Opinions"],["pienso que","je pense que","Opinions"],["me parece que","il me semble que","Opinions"],["estoy de acuerdo","je suis d'accord","Opinions"],["no estoy de acuerdo","je ne suis pas d'accord","Opinions"],["me encanta","j'adore","Opinions"],["no me gusta nada","je n'aime pas du tout","Opinions"],["lo siento","je suis désolé(e)","Expressions"],["perdone","pardon/excusez-moi","Expressions"],["con permiso","avec votre permission","Expressions"],["¡Claro!","Bien sûr !","Expressions"],["de acuerdo","d'accord","Expressions"],["por supuesto","bien sûr","Expressions"],["¿Cómo se dice...?","Comment dit-on... ?","Expressions"],["¿Puede repetir?","Pouvez-vous répéter ?","Expressions"],["más despacio","plus lentement","Expressions"],["no entiendo","je ne comprends pas","Expressions"],["¿Habla francés?","Parlez-vous français ?","Expressions"],["uno","un","Chiffres"],["dos","deux","Chiffres"],["tres","trois","Chiffres"],["cuatro","quatre","Chiffres"],["cinco","cinq","Chiffres"],["seis","six","Chiffres"],["siete","sept","Chiffres"],["ocho","huit","Chiffres"],["nueve","neuf","Chiffres"],["diez","dix","Chiffres"],["once","onze","Chiffres"],["doce","douze","Chiffres"],["quince","quinze","Chiffres"],["veinte","vingt","Chiffres"],["treinta","trente","Chiffres"],["cuarenta","quarante","Chiffres"],["cincuenta","cinquante","Chiffres"],["sesenta","soixante","Chiffres"],["setenta","soixante-dix","Chiffres"],["ochenta","quatre-vingts","Chiffres"],["noventa","quatre-vingt-dix","Chiffres"],["cien","cent","Chiffres"],["mil","mille","Chiffres"],["primero","premier","Chiffres"],["segundo","deuxième","Chiffres"],["tercero","troisième","Chiffres"],["cuarto","quatrième","Chiffres"]];
 
-// ============================================================
-// ÉTAT & PERSISTANCE
-// ============================================================
-const STORE_KEY = 'espanol_a2_state';
-let state = loadState();
+// ── STATE ──────────────────────────────────────────────────────────────────
+const SK='espanol_assimil_v2';
+let state=loadState();
+function loadState(){try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return{progress:{},errors:[],fcKnown:{},trStats:{ok:0,tot:0,str:0}};}
+function saveState(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
+function unitUnlocked(u){if(u.id===1)return true;const p=state.progress[u.id-1];return p&&p.done;}
 
-function loadState() {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return { progress: {}, errors: [], fcKnown: {} };
-  // progress[unitId] = { best: 0..1, done: bool }
-  // errors = [ {unitId, exoIndex} ]  (exercices ratés à revoir)
+// ── MARKDOWN léger ─────────────────────────────────────────────────────────
+function md(s){return(s||'').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\*(.+?)\*/g,'<em>$1</em>');}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+function switchView(name,btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='parcours')renderUnits();
+  if(name==='revision')renderRevision();
+  if(name==='train')initTrain();
+  if(name==='flash')initFlash();
 }
-function saveState() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch(e) {}
-}
+function showTab(name){const b=document.querySelector('.tabbar button[data-v="'+name+'"]');switchView(name,b);}
 
-function unitUnlocked(u) {
-  if (u.id === 1) return true;
-  const prev = state.progress[u.id - 1];
-  return prev && prev.done;
-}
-
-// ============================================================
-// RENDU MARKDOWN LÉGER (gras, italique)
-// ============================================================
-function md(s) {
-  return s
-    .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-    .replace(/\*(.+?)\*/g, '<em>$1</em>');
-}
-
-// ============================================================
-// NAVIGATION
-// ============================================================
-function switchView(name, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.tabbar button').forEach(b => b.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-  if (btn) btn.classList.add('active');
-  window.scrollTo(0, 0);
-  if (name === 'parcours') renderUnits();
-  if (name === 'revision') renderRevision();
-  if (name === 'flash') initFlash();
-}
-
-function showTab(name) {
-  const btn = document.querySelector('.tabbar button[data-view="'+name+'"]');
-  switchView(name, btn);
-}
-
-// ============================================================
-// PARCOURS — liste des unités
-// ============================================================
-function renderUnits() {
-  const done = Object.values(state.progress).filter(p => p.done).length;
-  document.getElementById('global-bar').style.width = (done / UNITS.length * 100) + '%';
-  document.getElementById('header-sub').textContent = done + ' / ' + UNITS.length + ' unités maîtrisées';
-
-  document.getElementById('units-list').innerHTML = UNITS.map(u => {
-    const p = state.progress[u.id] || { best: 0, done: false };
-    const unlocked = unitUnlocked(u);
-    const cls = !unlocked ? 'locked' : (p.done ? 'done' : '');
-    const badge = !unlocked ? '🔒' : (p.done ? '✅' : (p.best > 0 ? '▶️' : ''));
-    return `<div class="unit-card ${cls}" onclick="${unlocked ? `openUnit(${u.id})` : ''}">
-      <div class="unit-num">${u.id}</div>
-      <div class="unit-info">
-        <div class="t">${u.titre}</div>
-        <div class="o">${u.objectif}</div>
-        <div class="unit-bar"><div style="width:${Math.round(p.best*100)}%"></div></div>
-      </div>
-      <div class="unit-badge">${badge}</div>
-    </div>`;
+// ── PARCOURS ───────────────────────────────────────────────────────────────
+function renderUnits(){
+  const done=Object.values(state.progress).filter(p=>p.done).length;
+  document.getElementById('global-bar').style.width=(done/UNITS.length*100)+'%';
+  document.getElementById('header-sub').textContent=done+' / '+UNITS.length+' unités maîtrisées';
+  document.getElementById('units-list').innerHTML=UNITS.map(u=>{
+    const p=state.progress[u.id]||{best:0,done:false};
+    const ul=unitUnlocked(u);
+    const cls=!ul?'locked':(p.done?'done':'');
+    const badge=!ul?'🔒':(p.done?'✅':(p.best>0?'▶️':''));
+    return`<div class="unit-card ${cls}" onclick="${ul?`openUnit(${u.id})`:''}">
+<div class="unum">${u.id}</div>
+<div class="uinfo"><div class="t">${u.titre}</div><div class="o">${u.objectif}</div>
+<div class="ubar"><div style="width:${Math.round(p.best*100)}%"></div></div></div>
+<div class="ubadge">${badge}</div></div>`;
   }).join('');
 }
 
-// ============================================================
-// UNITÉ — leçon puis exercices
-// ============================================================
-let currentUnit = null, exoQueue = [], exoPos = 0, exoResults = [], selectedOpt = null, orderAnswer = [];
+// ── UNITÉ ──────────────────────────────────────────────────────────────────
+let CU=null,EQ=[],EP=0,ER=[],SO=null,OA=[];
 
-function openUnit(id) {
-  currentUnit = UNITS.find(u => u.id === id);
+function openUnit(id){
+  CU=UNITS.find(u=>u.id===id);
   renderLesson();
-  switchView('unit');
-}
-
-function renderLesson() {
-  const u = currentUnit;
-  const voc = u.vocab.map(v => `<div class="voc-item"><div class="es">${v[0]}</div><div class="fr">${v[1]}</div></div>`).join('');
-  const lec = u.lecon.map(l => `<li>${md(l)}</li>`).join('');
-  document.getElementById('view-unit').innerHTML = `
-    <button class="btn sec" style="padding:7px 12px;font-size:13px;margin-bottom:14px" onclick="showTab('parcours')">← Parcours</button>
-    <h2>Unité ${u.id} — ${u.titre}</h2>
-    <p class="muted" style="margin-bottom:14px">🎯 ${u.objectif}</p>
-    <div class="lecon"><ul>${lec}</ul></div>
-    <h2 style="font-size:15px">Vocabulaire clé</h2>
-    <div class="voc-grid">${voc}</div>
-    <button class="btn full" onclick="startExos()">Commencer les exercices (${u.exos.length}) →</button>
-  `;
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-unit').classList.add('active');
   window.scrollTo(0,0);
 }
 
-function startExos() {
-  exoQueue = currentUnit.exos.map((e, i) => i);
-  exoPos = 0; exoResults = [];
-  renderExo();
+function renderLesson(){
+  const u=CU;
+  const lec=u.lecon.map(l=>`<li>${md(l)}</li>`).join('');
+  const dlg=u.dialogue?u.dialogue.map(([es,fr])=>`<div class="dl-row"><div class="dl-es">${es}</div><div class="dl-fr">${fr}</div></div>`).join(''):'';
+  const voc=u.vocab?u.vocab.map(v=>`<div class="voc-item"><div class="es">${v[0]}</div><div class="fr">${v[1]}</div></div>`).join(''):'';
+  document.getElementById('view-unit').innerHTML=`
+<button class="btn sec" style="padding:6px 11px;font-size:12px;margin-bottom:12px" onclick="showTab('parcours')">&#8592; Parcours</button>
+<h2>Unité ${u.id} — ${u.titre}</h2>
+<p class="muted" style="margin-bottom:12px">🎯 ${u.objectif}</p>
+<div class="lecon"><ul>${lec}</ul></div>
+${dlg?`<h2 style="font-size:14px;margin-bottom:8px">Dialogue type</h2><div class="dialogue">${dlg}</div>`:''}
+<button class="btn full" onclick="startExos()">Exercices (${u.exos.length}) &#8594;</button>`;
 }
 
-function renderExo() {
-  const u = currentUnit;
-  const idx = exoQueue[exoPos];
-  const e = u.exos[idx];
-  selectedOpt = null; orderAnswer = [];
+function startExos(){
+  EQ=CU.exos.map((_,i)=>i);
+  EP=0;ER=[];renderExo();
+}
 
-  const dots = exoQueue.map((_, i) => {
-    let c = 'dot';
-    if (i < exoPos) c += exoResults[i] ? ' done' : ' fail';
-    else if (i === exoPos) c += ' cur';
-    return `<div class="${c}"></div>`;
-  }).join('');
-
-  const typeLabels = { select:'Choix multiple', trou:'Complète la phrase', trad:'Traduction', ordre:'Remets dans l\'ordre' };
-  let body = '';
-
-  if (e.type === 'select') {
-    const q = e.q.replace('___', '<span class="blank"></span>');
-    body = `<div class="exo-q">${q}</div>` +
-      e.opts.map((o,i) => `<button class="opt" data-i="${i}" onclick="selectOpt(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
-  } else if (e.type === 'trou' || e.type === 'trad') {
-    const q = e.type === 'trou' ? e.q.replace('___','______') : e.q;
-    body = `<div class="exo-q">${q}</div><input class="txt" id="exo-input" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Ta réponse...">`;
-  } else if (e.type === 'ordre') {
-    const m = e.q.match(/\[(.+?)\]/);
-    const words = m ? m[1].split('/').map(w=>w.trim()).filter(Boolean) : [];
-    const shuffled = words.slice().sort(()=>Math.random()-.5);
-    const label = e.q.replace(/\[.+?\]/,'').replace(/Remets[^:]*:/,'').trim();
-    body = `<div class="exo-q">${label || 'Remets les mots dans le bon ordre :'}</div>
-      <div class="answer-zone" id="answer-zone"></div>
-      <div class="word-bank" id="word-bank">${shuffled.map(w=>`<span class="chip" onclick="addWord(this,'${w.replace(/'/g,"\\'")}')">${w}</span>`).join('')}</div>`;
+function renderExo(){
+  const e=CU.exos[EQ[EP]];
+  SO=null;OA=[];
+  const dots=EQ.map((_,i)=>{let c='d';if(i<EP)c+=(ER[i]?' done':' fail');else if(i===EP)c+=' cur';return`<div class="${c}"></div>`;}).join('');
+  const tl={select:'Choix multiple',trou:'Complète',trad:'Traduction',ordre:'Remets en ordre'};
+  let body='';
+  if(e.type==='select'){
+    const q=e.q.replace('___','<span class="blank"></span>');
+    body=`<div class="exo-q">${q}</div>`+e.opts.map(o=>`<button class="opt" onclick="selOpt(this,'${esc(o)}')">${o}</button>`).join('');
+  }else if(e.type==='trou'||e.type==='trad'){
+    const q=e.type==='trou'?e.q.replace('___','______'):e.q;
+    body=`<div class="exo-q">${q}</div><input class="txt" id="exo-inp" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Ta réponse...">`;
+  }else if(e.type==='ordre'){
+    const m=e.q.match(/\[(.+?)\]/);
+    const words=m?m[1].split('/').map(w=>w.trim()).filter(Boolean):[];
+    const sh=words.slice().sort(()=>Math.random()-.5);
+    const lbl=e.q.replace(/\[.+?\]/,'').replace(/Remets[^:]*:/,'').trim();
+    body=`<div class="exo-q">${lbl||'Remets dans l\'ordre :'}</div>
+<div class="answer-zone" id="ans-zone"></div>
+<div class="word-bank" id="word-bank">${sh.map(w=>`<span class="chip" onclick="addWord(this,'${esc(w)}')">${w}</span>`).join('')}</div>`;
   }
-
-  document.getElementById('view-unit').innerHTML = `
-    <div class="exo-progress">${dots}</div>
-    <div class="exo-box">
-      <div class="exo-type">${typeLabels[e.type]} · ${exoPos+1}/${exoQueue.length}</div>
-      ${body}
-      <div class="feedback" id="feedback"></div>
-      <button class="btn full" id="check-btn" onclick="checkAnswer()" style="margin-top:16px">Vérifier</button>
-    </div>
-  `;
+  document.getElementById('view-unit').innerHTML=`
+<div class="exo-dots">${dots}</div>
+<div class="exo-box">
+<div class="exo-type">${tl[e.type]} · ${EP+1}/${EQ.length}</div>
+${body}
+<div class="feedback" id="feedback"></div>
+<button class="btn full" id="check-btn" onclick="checkAnswer()" style="margin-top:14px">Vérifier</button>
+</div>`;
   window.scrollTo(0,0);
-  setTimeout(()=>{ const inp=document.getElementById('exo-input'); if(inp) inp.focus(); }, 100);
+  setTimeout(()=>{const i=document.getElementById('exo-inp');if(i)i.focus();},100);
 }
 
-function selectOpt(el, val) {
-  document.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
-  el.classList.add('sel');
-  selectedOpt = val;
-}
-function addWord(el, w) {
-  orderAnswer.push(w);
-  el.style.display = 'none';
-  renderOrderZone();
-}
-function renderOrderZone() {
-  const z = document.getElementById('answer-zone');
-  z.innerHTML = orderAnswer.map((w,i)=>`<span class="chip" onclick="removeWord(${i})">${w}</span>`).join('');
-}
-function removeWord(i) {
-  const w = orderAnswer[i];
-  orderAnswer.splice(i,1);
-  document.querySelectorAll('#word-bank .chip').forEach(c => { if(c.textContent===w) c.style.display=''; });
-  renderOrderZone();
-}
+function esc(s){return(s||'').replace(/'/g,String.fromCharCode(92,39));}
+function selOpt(el,v){document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');SO=v;}
+function addWord(el,w){OA.push(w);el.style.display='none';renderOA();}
+function renderOA(){const z=document.getElementById('ans-zone');if(z)z.innerHTML=OA.map((w,i)=>`<span class="chip" onclick="removeWord(${i})">${w}</span>`).join('');}
+function removeWord(i){const w=OA[i];OA.splice(i,1);document.querySelectorAll('#word-bank .chip').forEach(c=>{if(c.textContent===w)c.style.display='';});renderOA();}
 
-function normalise(s) {
-  return (s||'').trim().toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .replace(/[¿?¡!.,]/g,'').replace(/\s+/g,' ').trim();
-}
+function norm(s){return(s||'').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[¿?¡!.,;]/g,'').replace(/\s+/g,' ').trim();}
 
-function checkAnswer() {
-  const u = currentUnit;
-  const idx = exoQueue[exoPos];
-  const e = u.exos[idx];
-  let userVal = '';
-
-  if (e.type === 'select') {
-    if (selectedOpt === null) return;
-    userVal = selectedOpt;
-  } else if (e.type === 'trou' || e.type === 'trad') {
-    userVal = document.getElementById('exo-input').value;
-    if (!userVal.trim()) return;
-  } else if (e.type === 'ordre') {
-    userVal = orderAnswer.join(' ');
-    if (!userVal.trim()) return;
-  }
-
-  const correct = normalise(userVal) === normalise(e.rep);
-  exoResults[exoPos] = correct;
-
-  // Marquage visuel
-  if (e.type === 'select') {
-    document.querySelectorAll('.opt').forEach(o => {
-      if (normalise(o.textContent) === normalise(e.rep)) o.classList.add('correct');
-      else if (o.classList.contains('sel')) o.classList.add('wrong');
-      o.style.pointerEvents = 'none';
+function checkAnswer(){
+  const e=CU.exos[EQ[EP]];
+  let v='';
+  if(e.type==='select'){if(!SO)return;v=SO;}
+  else if(e.type==='trou'||e.type==='trad'){v=document.getElementById('exo-inp').value;if(!v.trim())return;}
+  else if(e.type==='ordre'){v=OA.join(' ');if(!v.trim())return;}
+  const ok=norm(v)===norm(e.rep);
+  ER[EP]=ok;
+  if(e.type==='select'){
+    document.querySelectorAll('.opt').forEach(o=>{
+      if(norm(o.textContent)===norm(e.rep))o.classList.add('correct');
+      else if(o.classList.contains('sel'))o.classList.add('wrong');
+      o.style.pointerEvents='none';
     });
-  } else if (e.type === 'trou' || e.type === 'trad') {
-    const inp = document.getElementById('exo-input');
-    inp.classList.add(correct ? 'correct' : 'wrong');
-    inp.disabled = true;
+  }else if(e.type==='trou'||e.type==='trad'){
+    const i=document.getElementById('exo-inp');
+    i.classList.add(ok?'correct':'wrong');i.disabled=true;
   }
-
-  // Gestion des erreurs à revoir
-  if (!correct) {
-    if (!state.errors.find(x => x.unitId === u.id && x.exoIndex === idx))
-      state.errors.push({ unitId: u.id, exoIndex: idx });
-  } else {
-    state.errors = state.errors.filter(x => !(x.unitId === u.id && x.exoIndex === idx));
-  }
+  if(!ok){if(!state.errors.find(x=>x.uid===CU.id&&x.ei===EQ[EP]))state.errors.push({uid:CU.id,ei:EQ[EP]});}
+  else{state.errors=state.errors.filter(x=>!(x.uid===CU.id&&x.ei===EQ[EP]));}
   saveState();
-
-  // Feedback avec explication
-  const fb = document.getElementById('feedback');
-  fb.className = 'feedback show ' + (correct ? 'ok' : 'ko');
-  let html = `<div class="head">${correct ? '✓ Correct !' : '✗ Pas tout à fait'}</div>`;
-  if (!correct) html += `<div class="sol">La bonne réponse : <b>${e.rep}</b></div>`;
-  if (e.expl) html += `<div class="why"><b>Pourquoi ?</b> ${md(e.expl)}</div>`;
-  fb.innerHTML = html;
-
-  const btn = document.getElementById('check-btn');
-  btn.textContent = (exoPos < exoQueue.length - 1) ? 'Suivant →' : 'Voir le résultat';
-  btn.onclick = nextExo;
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show '+(ok?'ok':'ko');
+  let h=`<div class="head">${ok?'✓ Correct !':'✗ Pas tout à fait'}</div>`;
+  if(!ok)h+=`<div class="sol">Réponse : <b>${e.rep}</b></div>`;
+  if(e.expl)h+=`<div class="why"><b>Pourquoi ?</b> ${md(e.expl)}</div>`;
+  fb.innerHTML=h;
+  const btn=document.getElementById('check-btn');
+  btn.textContent=EP<EQ.length-1?'Suivant →':'Voir le résultat';
+  btn.onclick=nextExo;
 }
 
-function nextExo() {
-  exoPos++;
-  if (exoPos < exoQueue.length) renderExo();
-  else finishExos();
-}
+function nextExo(){EP++;if(EP<EQ.length)renderExo();else finishExos();}
 
-function finishExos() {
-  const u = currentUnit;
-  const ok = exoResults.filter(Boolean).length;
-  const total = exoResults.length;
-  const ratio = ok / total;
-  const passed = ratio >= 0.8;
-
-  const prev = state.progress[u.id] || { best: 0, done: false };
-  state.progress[u.id] = {
-    best: Math.max(prev.best, ratio),
-    done: prev.done || passed
-  };
+function finishExos(){
+  const ok=ER.filter(Boolean).length,tot=ER.length,ratio=ok/tot,passed=ratio>=0.8;
+  const prev=state.progress[CU.id]||{best:0,done:false};
+  state.progress[CU.id]={best:Math.max(prev.best,ratio),done:prev.done||passed};
   saveState();
-
-  const emoji = ratio === 1 ? '🏆' : passed ? '🎉' : '💪';
-  const msg = passed
-    ? (u.id < UNITS.length ? 'Unité validée ! L\'unité suivante est débloquée.' : 'Bravo, tu as terminé tout le parcours A2 !')
-    : 'Il te faut 80% pour valider. Retente quand tu veux !';
-
-  document.getElementById('view-unit').innerHTML = `
-    <div class="result-screen">
-      <div class="big">${emoji}</div>
-      <div class="score">${ok} / ${total}</div>
-      <p class="muted" style="margin-bottom:20px">${msg}</p>
-      <div class="btn-row" style="flex-direction:column">
-        <button class="btn full" onclick="startExos()">↻ Refaire les exercices</button>
-        <button class="btn sec full" onclick="showTab('parcours')">← Retour au parcours</button>
-      </div>
-    </div>`;
+  const emoji=ratio===1?'🏆':passed?'🎉':'💪';
+  const msg=passed?(CU.id<UNITS.length?'Unité validée ! La suivante est débloquée.':'Parcours terminé ! Bravo !'):
+    'Il faut 80 % pour valider. Retente quand tu veux !';
+  document.getElementById('view-unit').innerHTML=`
+<div class="result-screen">
+<div class="big">${emoji}</div>
+<div class="score">${ok} / ${tot}</div>
+<p class="muted" style="margin-bottom:18px">${msg}</p>
+<div class="btn-row" style="flex-direction:column">
+<button class="btn full" onclick="startExos()">&#8635; Refaire</button>
+<button class="btn sec full" onclick="showTab('parcours')" style="margin-top:8px">&#8592; Parcours</button>
+</div></div>`;
   window.scrollTo(0,0);
 }
 
-// ============================================================
-// RÉVISION ADAPTATIVE
-// ============================================================
-let revQueue = [], revPos = 0, revResults = [];
-
-function renderRevision() {
-  const c = document.getElementById('revision-content');
-  if (!state.errors.length) {
-    c.innerHTML = `<div class="exo-box" style="text-align:center">
-      <div style="font-size:42px">✨</div>
-      <p style="margin-top:10px">Aucune erreur à revoir pour l'instant !</p>
-      <p class="muted" style="margin-top:6px">Fais des exercices dans le parcours ; tes erreurs apparaîtront ici pour révision.</p>
-    </div>`;
-    return;
+// ── RÉVISION ───────────────────────────────────────────────────────────────
+let RQ=[],RP=0;
+function renderRevision(){
+  const c=document.getElementById('revision-content');
+  if(!state.errors.length){
+    c.innerHTML=`<div class="exo-box" style="text-align:center"><div style="font-size:40px">✨</div>
+<p style="margin-top:9px">Aucune erreur à revoir !</p>
+<p class="muted" style="margin-top:5px">Fais des exercices dans le parcours.</p></div>`;return;
   }
-  c.innerHTML = `<div class="exo-box">
-    <div style="font-size:42px;text-align:center">🔁</div>
-    <p style="text-align:center;margin:10px 0">Tu as <b>${state.errors.length}</b> exercice(s) à revoir.</p>
-    <button class="btn full" onclick="startRevision()" style="margin-top:10px">Réviser maintenant →</button>
-  </div>`;
+  c.innerHTML=`<div class="exo-box" style="text-align:center">
+<div style="font-size:38px">🔁</div>
+<p style="margin:9px 0"><b>${state.errors.length}</b> exercice(s) à revoir.</p>
+<button class="btn full" onclick="startRevision()" style="margin-top:9px">Réviser &#8594;</button></div>`;
 }
-
-function startRevision() {
-  revQueue = state.errors.slice().sort(()=>Math.random()-.5).slice(0, 12);
-  revPos = 0; revResults = [];
-  renderRevExo();
+function startRevision(){
+  RQ=state.errors.slice().sort(()=>Math.random()-.5).slice(0,12);
+  RP=0;renderRevExo();
 }
-
-function renderRevExo() {
-  const r = revQueue[revPos];
-  const u = UNITS.find(x => x.id === r.unitId);
-  const e = u.exos[r.exoIndex];
-  currentUnit = u; // réutilise le moteur
-  exoQueue = [r.exoIndex]; exoPos = 0; exoResults = [];
-  selectedOpt = null; orderAnswer = [];
-
-  // On bascule sur la vue unit mais on garde le contexte révision via flag
-  switchViewNoRender('unit');
-  renderRevExoBody(u, e, r);
-}
-
-function switchViewNoRender(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-' + name).classList.add('active');
-}
-
-function renderRevExoBody(u, e, r) {
-  selectedOpt = null; orderAnswer = [];
-  const typeLabels = { select:'Choix multiple', trou:'Complète la phrase', trad:'Traduction', ordre:'Remets dans l\'ordre' };
-  let body = '';
-  if (e.type === 'select') {
-    const q = e.q.replace('___', '<span class="blank"></span>');
-    body = `<div class="exo-q">${q}</div>` +
-      e.opts.map(o => `<button class="opt" onclick="selectOpt(this,'${o.replace(/'/g,"\\'")}')">${o}</button>`).join('');
-  } else if (e.type === 'trou' || e.type === 'trad') {
-    const q = e.type === 'trou' ? e.q.replace('___','______') : e.q;
-    body = `<div class="exo-q">${q}</div><input class="txt" id="exo-input" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Ta réponse...">`;
-  } else if (e.type === 'ordre') {
-    const m = e.q.match(/\[(.+?)\]/);
-    const words = m ? m[1].split('/').map(w=>w.trim()).filter(Boolean) : [];
-    const shuffled = words.slice().sort(()=>Math.random()-.5);
-    const label = e.q.replace(/\[.+?\]/,'').replace(/Remets[^:]*:/,'').trim();
-    body = `<div class="exo-q">${label||'Remets les mots dans le bon ordre :'}</div>
-      <div class="answer-zone" id="answer-zone"></div>
-      <div class="word-bank" id="word-bank">${shuffled.map(w=>`<span class="chip" onclick="addWord(this,'${w.replace(/'/g,"\\'")}')">${w}</span>`).join('')}</div>`;
+function renderRevExo(){
+  const r=RQ[RP];CU=UNITS.find(u=>u.id===r.uid);EQ=[r.ei];EP=0;ER=[];SO=null;OA=[];
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-unit').classList.add('active');
+  const e=CU.exos[r.ei];
+  const tl={select:'Choix multiple',trou:'Complète',trad:'Traduction',ordre:'Remets en ordre'};
+  let body='';
+  if(e.type==='select'){
+    const q=e.q.replace('___','<span class="blank"></span>');
+    body=`<div class="exo-q">${q}</div>`+e.opts.map(o=>`<button class="opt" onclick="selOpt(this,'${esc(o)}')">${o}</button>`).join('');
+  }else if(e.type==='trou'||e.type==='trad'){
+    const q=e.type==='trou'?e.q.replace('___','______'):e.q;
+    body=`<div class="exo-q">${q}</div><input class="txt" id="exo-inp" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Ta réponse...">`;
+  }else if(e.type==='ordre'){
+    const m=e.q.match(/\[(.+?)\]/);
+    const words=m?m[1].split('/').map(w=>w.trim()).filter(Boolean):[];
+    const sh=words.slice().sort(()=>Math.random()-.5);
+    const lbl=e.q.replace(/\[.+?\]/,'').replace(/Remets[^:]*:/,'').trim();
+    body=`<div class="exo-q">${lbl||'Remets dans l\'ordre :'}</div>
+<div class="answer-zone" id="ans-zone"></div>
+<div class="word-bank" id="word-bank">${sh.map(w=>`<span class="chip" onclick="addWord(this,'${esc(w)}')">${w}</span>`).join('')}</div>`;
   }
-  document.getElementById('view-unit').innerHTML = `
-    <button class="btn sec" style="padding:7px 12px;font-size:13px;margin-bottom:14px" onclick="showTab('revision')">← Révision</button>
-    <div class="exo-type" style="margin-bottom:8px">Révision · Unité ${u.id} · ${revPos+1}/${revQueue.length}</div>
-    <div class="exo-box">
-      <div class="exo-type">${typeLabels[e.type]}</div>
-      ${body}
-      <div class="feedback" id="feedback"></div>
-      <button class="btn full" id="check-btn" onclick="checkRevAnswer()" style="margin-top:16px">Vérifier</button>
-    </div>`;
+  document.getElementById('view-unit').innerHTML=`
+<button class="btn sec" style="padding:6px 11px;font-size:12px;margin-bottom:12px" onclick="showTab('revision')">&#8592; Révision</button>
+<div class="exo-type" style="margin-bottom:7px">Révision · U${CU.id} · ${RP+1}/${RQ.length}</div>
+<div class="exo-box"><div class="exo-type">${tl[e.type]}</div>
+${body}
+<div class="feedback" id="feedback"></div>
+<button class="btn full" id="check-btn" onclick="checkRevAnswer()" style="margin-top:14px">Vérifier</button></div>`;
   window.scrollTo(0,0);
-  setTimeout(()=>{ const inp=document.getElementById('exo-input'); if(inp) inp.focus(); }, 100);
+  setTimeout(()=>{const i=document.getElementById('exo-inp');if(i)i.focus();},100);
+}
+function checkRevAnswer(){
+  const r=RQ[RP];const e=CU.exos[r.ei];
+  let v='';
+  if(e.type==='select'){if(!SO)return;v=SO;}
+  else if(e.type==='trou'||e.type==='trad'){v=document.getElementById('exo-inp').value;if(!v.trim())return;}
+  else if(e.type==='ordre'){v=OA.join(' ');if(!v.trim())return;}
+  const ok=norm(v)===norm(e.rep);
+  if(e.type==='select'){document.querySelectorAll('.opt').forEach(o=>{if(norm(o.textContent)===norm(e.rep))o.classList.add('correct');else if(o.classList.contains('sel'))o.classList.add('wrong');o.style.pointerEvents='none';});}
+  else if(e.type==='trou'||e.type==='trad'){const i=document.getElementById('exo-inp');i.classList.add(ok?'correct':'wrong');i.disabled=true;}
+  if(ok)state.errors=state.errors.filter(x=>!(x.uid===r.uid&&x.ei===r.ei));
+  saveState();
+  const fb=document.getElementById('feedback');
+  fb.className='feedback show '+(ok?'ok':'ko');
+  let h=`<div class="head">${ok?'✓ Correct !':'✗ Pas tout à fait'}</div>`;
+  if(!ok)h+=`<div class="sol">Réponse : <b>${e.rep}</b></div>`;
+  if(e.expl)h+=`<div class="why"><b>Pourquoi ?</b> ${md(e.expl)}</div>`;
+  fb.innerHTML=h;
+  const btn=document.getElementById('check-btn');
+  btn.textContent=RP<RQ.length-1?'Suivant →':'Terminer';
+  btn.onclick=()=>{RP++;if(RP<RQ.length)renderRevExo();else showTab('revision');};
 }
 
-function checkRevAnswer() {
-  const r = revQueue[revPos];
-  const u = UNITS.find(x => x.id === r.unitId);
-  const e = u.exos[r.exoIndex];
-  let userVal = '';
-  if (e.type === 'select') { if (selectedOpt === null) return; userVal = selectedOpt; }
-  else if (e.type === 'trou' || e.type === 'trad') { userVal = document.getElementById('exo-input').value; if(!userVal.trim()) return; }
-  else if (e.type === 'ordre') { userVal = orderAnswer.join(' '); if(!userVal.trim()) return; }
+// ── ENTRAÎNEMENT VOCABULAIRE ───────────────────────────────────────────────
+let trainMode='es',trainCat='Tout',trainDeck=[],trainIdx=0,trOk=0,trTot=0,trStr=0;
+const vocabCats=['Tout',...new Set(VOCAB.map(v=>v[2]))];
 
-  const correct = normalise(userVal) === normalise(e.rep);
-  revResults[revPos] = correct;
-
-  if (e.type === 'select') {
-    document.querySelectorAll('.opt').forEach(o => {
-      if (normalise(o.textContent) === normalise(e.rep)) o.classList.add('correct');
-      else if (o.classList.contains('sel')) o.classList.add('wrong');
-      o.style.pointerEvents = 'none';
-    });
-  } else if (e.type === 'trou' || e.type === 'trad') {
-    const inp = document.getElementById('exo-input');
-    inp.classList.add(correct ? 'correct' : 'wrong'); inp.disabled = true;
+function initTrain(){
+  if(!document.getElementById('train-filters').children.length){
+    document.getElementById('train-filters').innerHTML=vocabCats.map(c=>
+      `<button class="${c===trainCat?'active':''}" onclick="setTrainCat('${c}')">${c}</button>`).join('');
   }
-
-  // Si réussi en révision -> on retire de la liste d'erreurs
-  if (correct) {
-    state.errors = state.errors.filter(x => !(x.unitId === r.unitId && x.exoIndex === r.exoIndex));
-    saveState();
-  }
-
-  const fb = document.getElementById('feedback');
-  fb.className = 'feedback show ' + (correct ? 'ok' : 'ko');
-  let html = `<div class="head">${correct ? '✓ Correct !' : '✗ Pas tout à fait'}</div>`;
-  if (!correct) html += `<div class="sol">La bonne réponse : <b>${e.rep}</b></div>`;
-  if (e.expl) html += `<div class="why"><b>Pourquoi ?</b> ${md(e.expl)}</div>`;
-  fb.innerHTML = html;
-
-  const btn = document.getElementById('check-btn');
-  btn.textContent = (revPos < revQueue.length - 1) ? 'Suivant →' : 'Terminer';
-  btn.onclick = () => {
-    revPos++;
-    if (revPos < revQueue.length) renderRevExo();
-    else { showTab('revision'); }
-  };
+  updateTrainStats();
+  if(!trainDeck.length)buildTrainDeck();
+  else renderTrainCard();
 }
 
-// ============================================================
-// FLASHCARDS
-// ============================================================
-let fcDeck = [], fcIndex = 0, fcFlipped = false, fcCat = 'Toutes';
-const allVocab = [];
-UNITS.forEach(u => u.vocab.forEach(v => allVocab.push({ es: v[0], fr: v[1], cat: 'U'+u.id+' · '+u.titre.split('—')[0].trim() })));
+function setTrainMode(m,btn){
+  trainMode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildTrainDeck();
+}
+function setTrainCat(c){
+  trainCat=c;
+  document.querySelectorAll('#train-filters button').forEach(b=>b.classList.toggle('active',b.textContent===c));
+  buildTrainDeck();
+}
+function buildTrainDeck(){
+  let pool=trainCat==='Tout'?VOCAB:VOCAB.filter(v=>v[2]===trainCat);
+  trainDeck=pool.slice().sort(()=>Math.random()-.5);
+  trainIdx=0;renderTrainCard();
+}
+function updateTrainStats(){
+  document.getElementById('tr-ok').textContent=trOk;
+  document.getElementById('tr-tot').textContent=trTot;
+  document.getElementById('tr-str').textContent=trStr;
+  const s=document.getElementById('train-streak');
+  s.textContent=trStr>=3?'🔥 Série de '+trStr+' !':trStr===2?'👍 Encore un !':'';
+}
+function renderTrainCard(){
+  if(!trainDeck.length)return;
+  const item=trainDeck[trainIdx%trainDeck.length];
+  const question=trainMode==='es'?item[0]:item[1];
+  const correct=trainMode==='es'?item[1]:item[0];
+  // Génère 3 mauvaises réponses
+  let pool=(trainMode==='es'?VOCAB.map(v=>v[1]):VOCAB.map(v=>v[0])).filter(x=>norm(x)!==norm(correct));
+  pool=pool.sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[correct,...pool].sort(()=>Math.random()-.5);
+  const sub=trainMode==='es'?`Catégorie : ${item[2]}`:`${item[2]}`;
+  document.getElementById('train-card-zone').innerHTML=`
+<div class="train-card">
+<div class="train-q">${question}</div>
+<div class="train-sub">${sub}</div>
+<div class="train-opts">${opts.map(o=>`<button class="train-opt" onclick="checkTrain(this,'${esc(o)}','${esc(correct)}')">${o}</button>`).join('')}</div>
+</div>
+<p class="muted" style="text-align:center;font-size:12px">${trainIdx+1} / ${trainDeck.length}</p>`;
+}
+function checkTrain(el,chosen,correct){
+  document.querySelectorAll('.train-opt').forEach(b=>b.style.pointerEvents='none');
+  const ok=norm(chosen)===norm(correct);
+  el.classList.add(ok?'correct':'wrong');
+  if(!ok){document.querySelectorAll('.train-opt').forEach(b=>{if(norm(b.textContent)===norm(correct))b.classList.add('correct');});}
+  trTot++;if(ok){trOk++;trStr++;}else{trStr=0;}
+  updateTrainStats();
+  setTimeout(()=>{
+    trainIdx=(trainIdx+1)%trainDeck.length;
+    if(trainIdx===0)trainDeck=trainDeck.slice().sort(()=>Math.random()-.5);
+    renderTrainCard();
+  },ok?800:1400);
+}
 
-function initFlash() {
-  const cats = ['Toutes', ...UNITS.map(u => 'U'+u.id)];
-  document.getElementById('fc-filters').innerHTML = cats.map(c =>
+// ── FLASHCARDS ────────────────────────────────────────────────────────────
+const allVoc=VOCAB.map(v=>({es:v[0],fr:v[1],cat:v[2]}));
+let fcDeck=[],fcIdx=0,fcFlip=false,fcCat='Tout',fcKn=0,fcTot=0;
+function initFlash(){
+  const cats=['Tout',...new Set(allVoc.map(v=>v.cat))];
+  document.getElementById('fc-filters').innerHTML=cats.map(c=>
     `<button class="${c===fcCat?'active':''}" onclick="setFcCat('${c}')">${c}</button>`).join('');
-  buildDeck();
+  if(!fcDeck.length)buildFcDeck();else showFcCard();
 }
-function setFcCat(c) {
-  fcCat = c;
-  document.querySelectorAll('#fc-filters button').forEach(b => b.classList.toggle('active', b.textContent===c));
-  buildDeck();
+function setFcCat(c){fcCat=c;document.querySelectorAll('#fc-filters button').forEach(b=>b.classList.toggle('active',b.textContent===c));buildFcDeck();}
+function buildFcDeck(){fcDeck=(fcCat==='Tout'?allVoc:allVoc.filter(v=>v.cat===fcCat)).slice().sort(()=>Math.random()-.5);fcIdx=0;fcKn=0;fcTot=0;showFcCard();}
+function showFcCard(){
+  if(!fcDeck.length)return;
+  const c=fcDeck[fcIdx];
+  document.getElementById('fc-front').textContent=c.es;
+  document.getElementById('fc-back').textContent=c.fr;
+  document.getElementById('fc-back').style.display='none';
+  fcFlip=false;
+  document.getElementById('fc-prog').textContent=`${fcIdx+1} / ${fcDeck.length}  ·  ${c.cat}`;
+  document.getElementById('fc-score').textContent=fcTot?`Session : ${fcKn} sus / ${fcTot} vus`:'';
 }
-function buildDeck() {
-  fcDeck = (fcCat==='Toutes' ? allVocab : allVocab.filter(v => v.cat.startsWith(fcCat+' ')))
-    .slice().sort(()=>Math.random()-.5);
-  fcIndex = 0; showCard();
-}
-function showCard() {
-  if (!fcDeck.length) return;
-  const c = fcDeck[fcIndex];
-  document.getElementById('fc-front').textContent = c.es;
-  document.getElementById('fc-back').textContent = c.fr;
-  document.getElementById('fc-back').style.display = 'none';
-  fcFlipped = false;
-  document.getElementById('fc-progress').textContent = (fcIndex+1)+' / '+fcDeck.length+'  ·  '+c.cat;
-}
-function flipCard() {
-  fcFlipped = !fcFlipped;
-  document.getElementById('fc-back').style.display = fcFlipped ? 'block' : 'none';
-}
-function markCard() {
-  fcIndex = (fcIndex+1) % fcDeck.length;
-  showCard();
-}
+function flipCard(){fcFlip=!fcFlip;document.getElementById('fc-back').style.display=fcFlip?'block':'none';}
+function markCard(known){fcTot++;if(known)fcKn++;fcIdx=(fcIdx+1)%fcDeck.length;showFcCard();}
 
-// ============================================================
-// PWA : installation + service worker
-// ============================================================
-let deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('install-banner').classList.add('show');
-});
-document.getElementById('install-btn').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  document.getElementById('install-banner').classList.remove('show');
-});
-window.addEventListener('appinstalled', () => {
-  document.getElementById('install-banner').classList.remove('show');
-});
+// ── PWA ────────────────────────────────────────────────────────────────────
+let dPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dPrompt=e;document.getElementById('install-banner').classList.add('show');});
+document.getElementById('install-btn').addEventListener('click',async()=>{if(!dPrompt)return;dPrompt.prompt();await dPrompt.userChoice;dPrompt=null;document.getElementById('install-banner').classList.remove('show');});
+window.addEventListener('appinstalled',()=>document.getElementById('install-banner').classList.remove('show'));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(()=>{}));
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
-  });
-}
-
-// Démarrage
+// ── INIT ──────────────────────────────────────────────────────────────────
 renderUnits();
 </script>
 </body>
